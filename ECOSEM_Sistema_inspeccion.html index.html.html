@@ -1,0 +1,2281 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="theme-color" content="#0a0f1e">
+<title>ECOSEM — Sistema Digital de Inspección</title>
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<!-- SheetJS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<!-- PptxGenJS -->
+<script src="https://cdn.jsdelivr.net/npm/pptxgenjs@3.12.0/dist/pptxgen.bundle.js"></script>
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+<style>
+/* ════════════════════════════════════════════
+   ECOSEM SISTEMA DIGITAL — DESIGN SYSTEM
+   Aesthetic: Industrial Command Center
+   Dark navy + electric amber accent
+════════════════════════════════════════════ */
+@import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{height:100%;overflow-x:hidden}
+body{
+  font-family:'Inter',system-ui,sans-serif;
+  background:#0a0f1e;color:#e2e8f0;
+  min-height:100%;min-height:-webkit-fill-available;
+  -webkit-text-size-adjust:100%;overflow-x:hidden;
+}
+input,select,textarea,button{font-family:inherit}
+button{cursor:pointer;border:none;background:none}
+
+:root{
+  --bg:#0a0f1e;--bg2:#0f172a;
+  --surf:#141e33;--surf2:#1a2744;
+  --card:#1e2d4a;--card2:#243458;
+  --border:#2a3f6b;--border2:#3b5280;
+  --gold:#f5a623;--gold2:#e8931a;--gold3:#fbbf24;
+  --gold-g:linear-gradient(135deg,#e8931a,#f5a623,#fbbf24);
+  --green:#22d3a0;--green2:#10b981;--green-l:rgba(34,211,160,.12);
+  --red:#f87171;--red2:#ef4444;--red-l:rgba(248,113,113,.12);
+  --blue:#60a5fa;--blue2:#3b82f6;--blue-l:rgba(96,165,250,.12);
+  --purple:#a78bfa;--purple-l:rgba(167,139,250,.12);
+  --orange:#fb923c;
+  --muted:#4a6590;--muted2:#7a94c0;--muted3:#a8bbda;
+  --text:#e2e8f0;--text2:#cbd5e1;--text3:#94a3b8;
+  --safe-t:env(safe-area-inset-top,0px);
+  --safe-b:env(safe-area-inset-bottom,0px);
+  --r:12px;--r2:16px;
+}
+
+/* ── SCREEN SYSTEM ── */
+.screen{display:none;min-height:100vh;min-height:-webkit-fill-available;flex-direction:column}
+.screen.on{display:flex}
+
+/* ════════════════════════════════════════════
+   LOGIN SCREEN
+════════════════════════════════════════════ */
+#s-login{
+  background:radial-gradient(ellipse 80% 60% at 30% 40%,#1a2744 0%,#0a0f1e 70%);
+  align-items:center;justify-content:center;
+  padding:24px 16px;padding-top:calc(24px + var(--safe-t));
+  position:relative;overflow:hidden;
+}
+#s-login::before{
+  content:'';position:absolute;inset:0;pointer-events:none;
+  background:
+    radial-gradient(circle at 80% 20%,rgba(245,166,35,.06) 0%,transparent 50%),
+    repeating-linear-gradient(0deg,transparent,transparent 60px,rgba(245,166,35,.025) 60px,rgba(245,166,35,.025) 61px),
+    repeating-linear-gradient(90deg,transparent,transparent 60px,rgba(245,166,35,.025) 60px,rgba(245,166,35,.025) 61px);
+}
+.login-wrap{position:relative;z-index:1;width:100%;max-width:440px}
+.login-hero{text-align:center;margin-bottom:32px}
+.login-badge{
+  display:inline-flex;flex-direction:column;align-items:center;
+  padding:18px 28px;margin-bottom:20px;
+  background:linear-gradient(135deg,var(--surf),var(--card));
+  border:1px solid var(--border2);border-radius:20px;
+  box-shadow:0 0 60px rgba(245,166,35,.15),inset 0 1px 0 rgba(245,166,35,.1);
+}
+.badge-eco{font-family:'Rajdhani',sans-serif;font-size:28px;font-weight:700;
+  color:var(--gold3);letter-spacing:4px;line-height:1}
+.badge-sub{font-size:10px;color:var(--muted2);letter-spacing:3px;
+  text-transform:uppercase;margin-top:4px}
+.login-hero h1{font-family:'Rajdhani',sans-serif;font-size:22px;font-weight:700;
+  color:#fff;letter-spacing:1px;line-height:1.3}
+.login-hero h1 em{color:var(--gold);font-style:normal}
+.login-hero p{font-size:12px;color:var(--muted2);margin-top:6px;letter-spacing:.5px}
+
+.login-card{
+  background:var(--surf);border:1px solid var(--border);
+  border-radius:20px;padding:24px 20px 20px;
+  box-shadow:0 32px 80px rgba(0,0,0,.6);
+}
+.ltabs{display:flex;background:var(--bg2);border-radius:10px;padding:3px;gap:3px;margin-bottom:20px}
+.ltab{flex:1;padding:9px 4px;border-radius:8px;font-size:12px;font-weight:600;
+  color:var(--muted2);transition:all .2s;text-align:center}
+.ltab.on{background:var(--card);color:var(--gold);box-shadow:0 2px 8px rgba(0,0,0,.4)}
+.lsec{display:none}.lsec.on{display:block}
+
+.f{margin-bottom:14px}
+.f label{display:block;font-size:10px;font-weight:700;color:var(--muted2);
+  text-transform:uppercase;letter-spacing:.8px;margin-bottom:5px}
+.f input,.f select,.f textarea{
+  width:100%;padding:13px 14px;
+  background:var(--card);border:1.5px solid var(--border);
+  border-radius:var(--r);font-size:14px;color:var(--text);
+  outline:none;-webkit-appearance:none;appearance:none;
+  transition:border-color .2s,box-shadow .2s;
+}
+.f input:focus,.f select:focus,.f textarea:focus{
+  border-color:var(--gold);box-shadow:0 0 0 3px rgba(245,166,35,.12)}
+.f select option{background:var(--card)}
+.hint{background:rgba(245,166,35,.07);border:1px solid rgba(245,166,35,.2);
+  border-radius:var(--r);padding:11px 13px;font-size:12px;color:#fcd34d;
+  margin-bottom:16px;line-height:1.6}
+.btn-main{
+  width:100%;padding:15px;border-radius:var(--r);
+  background:var(--gold-g);color:#0a0f1e;
+  font-size:15px;font-weight:700;letter-spacing:.3px;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  transition:all .15s;box-shadow:0 4px 24px rgba(245,166,35,.3);
+}
+.btn-main:active{transform:scale(.97);opacity:.9}
+.btn-main:disabled{background:var(--muted);box-shadow:none;pointer-events:none}
+
+/* ════════════════════════════════════════════
+   APP SHELL
+════════════════════════════════════════════ */
+.appbar{
+  background:var(--surf);border-bottom:1px solid var(--border);
+  padding:0 14px;padding-top:var(--safe-t);
+  display:flex;align-items:center;justify-content:space-between;
+  min-height:calc(54px + var(--safe-t));
+  position:sticky;top:0;z-index:80;flex-shrink:0;
+  box-shadow:0 2px 20px rgba(0,0,0,.4);
+}
+.ab-brand{display:flex;align-items:center;gap:10px}
+.ab-pulse{width:8px;height:8px;background:var(--green);border-radius:50%;
+  box-shadow:0 0 10px var(--green);animation:pulse 2s ease-in-out infinite;flex-shrink:0}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.6;transform:scale(.8)}}
+.ab-title{font-family:'Rajdhani',sans-serif;font-size:17px;font-weight:700;
+  color:#fff;letter-spacing:.5px}
+.ab-sub{font-size:10px;color:var(--muted2);letter-spacing:.3px;margin-top:1px}
+.ab-right{display:flex;gap:6px;align-items:center}
+.ab-btn{width:36px;height:36px;border-radius:9px;
+  background:var(--card);border:1px solid var(--border);
+  color:var(--text2);font-size:16px;display:flex;align-items:center;justify-content:center;
+  transition:all .15s;flex-shrink:0}
+.ab-btn:active{border-color:var(--gold);color:var(--gold)}
+.ab-user{
+  background:var(--card);border:1px solid var(--border);border-radius:9px;
+  padding:6px 10px;display:flex;align-items:center;gap:6px;
+  font-size:11px;font-weight:600;color:var(--muted3);
+}
+.ab-user span{color:var(--gold);font-weight:700}
+
+/* ── MÓDULO TABS (top nav) ── */
+.mod-tabs{
+  background:var(--bg2);border-bottom:1px solid var(--border);
+  display:flex;overflow-x:auto;scrollbar-width:none;flex-shrink:0;
+}
+.mod-tabs::-webkit-scrollbar{display:none}
+.mt{
+  flex-shrink:0;padding:10px 16px;border:none;background:transparent;
+  font-size:12px;font-weight:600;color:var(--muted2);letter-spacing:.3px;
+  display:flex;align-items:center;gap:6px;border-bottom:2px solid transparent;
+  transition:all .2s;white-space:nowrap;
+}
+.mt .mi{font-size:16px}
+.mt.on{color:var(--gold);border-bottom-color:var(--gold)}
+.mt:active{color:var(--text2)}
+
+/* ── SCROLL ── */
+.scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:14px 12px 90px}
+
+/* ════════════════════════════════════════════
+   SHARED COMPONENTS
+════════════════════════════════════════════ */
+.sec-title{
+  font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;
+  color:var(--gold);text-transform:uppercase;letter-spacing:1px;
+  display:flex;align-items:center;gap:8px;margin-bottom:12px;
+  padding-bottom:8px;border-bottom:1px solid var(--border);
+}
+.sec-title::before{content:'';width:3px;height:16px;background:var(--gold-g);
+  border-radius:2px;flex-shrink:0}
+
+.card{background:var(--card);border:1px solid var(--border);
+  border-radius:var(--r2);margin-bottom:12px;overflow:hidden}
+.card-head{padding:14px 16px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between}
+.card-head h3{font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:700;
+  color:#fff;letter-spacing:.5px;text-transform:uppercase;
+  display:flex;align-items:center;gap:8px}
+.card-body{padding:14px 16px}
+
+/* KPI grid */
+.kpi-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:14px}
+.kpi-grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
+.kpi{
+  background:var(--card);border:1px solid var(--border);border-radius:var(--r2);
+  padding:14px 12px;position:relative;overflow:hidden;
+}
+.kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:var(--gold-g)}
+.kpi.green::before{background:linear-gradient(90deg,var(--green2),var(--green))}
+.kpi.red::before{background:linear-gradient(90deg,var(--red2),var(--red))}
+.kpi.blue::before{background:linear-gradient(90deg,var(--blue2),var(--blue))}
+.kpi.purple::before{background:linear-gradient(90deg,#7c3aed,var(--purple))}
+.kpi-icon{font-size:22px;margin-bottom:8px;display:block}
+.kpi-val{font-family:'Rajdhani',sans-serif;font-size:28px;font-weight:700;
+  color:#fff;line-height:1}
+.kpi-lbl{font-size:10px;font-weight:700;color:var(--muted2);
+  text-transform:uppercase;letter-spacing:.6px;margin-top:4px}
+.kpi-trend{font-size:11px;font-weight:700;margin-top:6px;display:flex;align-items:center;gap:4px}
+.trend-up{color:var(--green)}.trend-dn{color:var(--red)}.trend-eq{color:var(--muted2)}
+
+/* chart canvas */
+.chart-wrap{padding:14px 16px 10px;position:relative}
+.chart-wrap canvas{max-height:220px}
+
+/* form field */
+.fi{display:flex;flex-direction:column;gap:4px;margin-bottom:12px}
+.fi label{font-size:10px;font-weight:700;color:var(--muted2);
+  text-transform:uppercase;letter-spacing:.6px}
+.fi input,.fi select,.fi textarea{
+  padding:11px 12px;background:var(--surf2);border:1.5px solid var(--border);
+  border-radius:10px;font-size:13px;color:var(--text);
+  outline:none;-webkit-appearance:none;appearance:none;width:100%;
+}
+.fi input:focus,.fi select:focus,.fi textarea:focus{border-color:var(--gold)}
+.fi select option,.fi textarea{background:var(--card);resize:none}
+.fi-full{grid-column:span 2}
+.fg2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.fg3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+
+/* tags */
+.tag{display:inline-flex;align-items:center;font-size:10px;font-weight:700;
+  padding:3px 9px;border-radius:6px;letter-spacing:.3px}
+.tag-b{background:var(--green-l);color:var(--green);border:1px solid rgba(34,211,160,.2)}
+.tag-m{background:var(--red-l);color:var(--red);border:1px solid rgba(248,113,113,.2)}
+.tag-na{background:rgba(148,163,184,.08);color:var(--muted3);border:1px solid var(--border)}
+.tag-pend{background:rgba(245,166,35,.1);color:var(--gold);border:1px solid rgba(245,166,35,.2)}
+.tag-ok{background:var(--green-l);color:var(--green)}
+.tag-warn{background:rgba(251,146,60,.1);color:var(--orange)}
+.tag-crit{background:var(--red-l);color:var(--red)}
+
+/* status badge */
+.sbadge{font-size:11px;font-weight:700;padding:4px 10px;border-radius:100px}
+.sb-green{background:var(--green-l);color:var(--green)}
+.sb-red{background:var(--red-l);color:var(--red)}
+.sb-amber{background:rgba(245,166,35,.12);color:var(--gold)}
+.sb-blue{background:var(--blue-l);color:var(--blue)}
+
+/* progress bar */
+.pbar{height:6px;background:var(--border);border-radius:4px;overflow:hidden;margin-top:6px}
+.pbar-fill{height:100%;border-radius:4px;transition:width .5s ease}
+.pbar-gold{background:var(--gold-g)}
+.pbar-green{background:linear-gradient(90deg,var(--green2),var(--green))}
+.pbar-red{background:linear-gradient(90deg,var(--red2),var(--red))}
+
+/* table */
+.tbl{width:100%;border-collapse:collapse;font-size:12px}
+.tbl th{background:var(--surf2);padding:8px 10px;text-align:left;
+  font-size:9px;text-transform:uppercase;letter-spacing:.7px;color:var(--muted2);
+  font-weight:700;border-bottom:1px solid var(--border);white-space:nowrap}
+.tbl td{padding:9px 10px;border-bottom:1px solid rgba(42,63,107,.4);
+  color:var(--text2);vertical-align:middle}
+.tbl tr:last-child td{border-bottom:none}
+.tbl-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+
+/* action buttons */
+.btn-sm{padding:8px 14px;border-radius:9px;font-size:12px;font-weight:700;
+  display:inline-flex;align-items:center;gap:5px;transition:all .15s;letter-spacing:.2px}
+.btn-gold{background:var(--gold-g);color:#0a0f1e}
+.btn-gold:active{opacity:.85;transform:scale(.96)}
+.btn-outline{background:transparent;border:1.5px solid var(--border);color:var(--text2)}
+.btn-outline:active{border-color:var(--gold);color:var(--gold)}
+.btn-red{background:var(--red-l);color:var(--red);border:1px solid rgba(248,113,113,.2)}
+.btn-red:active{background:var(--red);color:#fff}
+.btn-green{background:var(--green-l);color:var(--green);border:1px solid rgba(34,211,160,.2)}
+.btn-green:active{background:var(--green2);color:#fff}
+.btn-blue{background:var(--blue-l);color:var(--blue);border:1px solid rgba(96,165,250,.2)}
+.btn-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+
+/* fab */
+.fab{
+  position:fixed;bottom:calc(72px + var(--safe-b) + 12px);right:16px;
+  width:52px;height:52px;border-radius:50%;
+  background:var(--gold-g);color:#0a0f1e;
+  font-size:24px;display:flex;align-items:center;justify-content:center;
+  box-shadow:0 6px 24px rgba(245,166,35,.4);z-index:50;
+  transition:all .2s;
+}
+.fab:active{transform:scale(.9)}
+
+/* modal */
+.modal-bg{
+  position:fixed;inset:0;background:rgba(0,0,0,.7);
+  -webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);
+  z-index:200;display:none;align-items:flex-end;justify-content:center;
+  padding:0;
+}
+.modal-bg.on{display:flex}
+.modal{
+  background:var(--surf);border:1px solid var(--border);
+  border-radius:20px 20px 0 0;width:100%;max-width:540px;
+  max-height:92vh;display:flex;flex-direction:column;
+  padding-bottom:var(--safe-b);
+  animation:slideUp .28s ease;
+}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.modal-handle{width:40px;height:4px;background:var(--border2);border-radius:4px;
+  margin:10px auto 0;flex-shrink:0}
+.modal-head{padding:14px 18px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.modal-head h2{font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:700;
+  color:#fff;letter-spacing:.5px;text-transform:uppercase}
+.modal-close{width:32px;height:32px;border-radius:50%;background:var(--card);
+  color:var(--muted2);font-size:17px;display:flex;align-items:center;justify-content:center}
+.modal-close:active{color:var(--red)}
+.modal-body{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:16px 18px}
+.modal-foot{padding:14px 18px;border-top:1px solid var(--border);
+  display:flex;gap:10px;flex-shrink:0}
+.modal-foot .btn-main{flex:1}
+
+/* BMN */
+.bmna-hdr{display:flex;align-items:center;padding:5px 14px;
+  background:rgba(10,15,30,.5);border-bottom:1px solid var(--border)}
+.bmna-hdr .bh-lbl{flex:1;font-size:9px;font-weight:700;color:var(--muted);
+  text-transform:uppercase;letter-spacing:.5px}
+.bmna-cols{display:flex;gap:2px}
+.bcol{width:44px;text-align:center;font-size:9px;font-weight:700;letter-spacing:.3px}
+.bcol-b{color:var(--green)}.bcol-m{color:var(--red)}.bcol-na{color:var(--muted2)}
+
+.chk-row{display:flex;align-items:center;padding:10px 14px;
+  border-bottom:1px solid rgba(42,63,107,.35);min-height:46px;
+  transition:background .1s}
+.chk-row:active{background:rgba(245,166,35,.04)}
+.chk-lbl{flex:1;font-size:13px;color:var(--text2);line-height:1.35;padding-right:6px}
+.chk-nn{display:inline-block;font-size:8px;font-weight:700;color:var(--gold);
+  background:rgba(245,166,35,.12);border:1px solid rgba(245,166,35,.25);
+  padding:1px 5px;border-radius:4px;margin-left:4px;vertical-align:middle}
+.bmna-grp{display:flex;gap:2px;flex-shrink:0}
+.bx{width:44px;height:36px;border-radius:8px;font-size:11px;font-weight:700;
+  display:flex;align-items:center;justify-content:center;
+  background:var(--surf2);border:1.5px solid var(--border);color:var(--muted2);
+  transition:all .12s;-webkit-user-select:none;user-select:none}
+.bx:active{transform:scale(.85)}
+.bx.B.on{background:var(--green-l);border-color:var(--green);color:var(--green)}
+.bx.M.on{background:var(--red-l);border-color:var(--red);color:var(--red)}
+.bx.NA.on{background:rgba(148,163,184,.1);border-color:var(--muted2);color:var(--muted2)}
+
+/* ── BOTTOM NAV ── */
+.bnav{
+  position:fixed;bottom:0;left:0;right:0;z-index:80;
+  background:var(--surf);border-top:1px solid var(--border);
+  display:flex;padding-bottom:var(--safe-b);
+  box-shadow:0 -4px 20px rgba(0,0,0,.3);
+}
+.bn{flex:1;display:flex;flex-direction:column;align-items:center;
+  justify-content:center;padding:9px 4px 7px;gap:2px}
+.bn .bi{font-size:20px;line-height:1;transition:transform .2s}
+.bn .bl{font-size:9px;font-weight:700;color:var(--muted);letter-spacing:.3px}
+.bn.on .bl{color:var(--gold)}.bn.on .bi{transform:scale(1.1)}
+
+/* empty */
+.empty{text-align:center;padding:48px 20px;color:var(--muted2)}
+.empty .ei{font-size:52px;margin-bottom:12px}
+.empty h3{font-size:16px;font-weight:700;color:var(--text2);margin-bottom:5px}
+.empty p{font-size:13px}
+
+/* spinner */
+.spin{width:32px;height:32px;border:2px solid var(--border);
+  border-top-color:var(--gold);border-radius:50%;
+  animation:ro .7s linear infinite;margin:0 auto 12px}
+@keyframes ro{to{transform:rotate(360deg)}}
+
+/* toast */
+#toast{position:fixed;bottom:calc(70px + var(--safe-b));left:50%;
+  transform:translateX(-50%) translateY(16px);
+  background:#fff;color:#0a0f1e;padding:11px 22px;border-radius:100px;
+  font-size:13px;font-weight:800;opacity:0;transition:all .3s;z-index:999;
+  white-space:nowrap;pointer-events:none;
+  max-width:calc(100vw - 32px);text-align:center;
+  box-shadow:0 8px 32px rgba(0,0,0,.4)}
+#toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ════════════════════════════════════════════
+   DASHBOARD
+════════════════════════════════════════════ */
+.dash-welcome{
+  background:linear-gradient(135deg,var(--surf2),var(--card));
+  border:1px solid var(--border);border-radius:var(--r2);
+  padding:18px;margin-bottom:14px;
+  display:flex;align-items:center;gap:14px;
+  position:relative;overflow:hidden;
+}
+.dash-welcome::after{
+  content:'ECOSEM';position:absolute;right:-10px;top:50%;
+  transform:translateY(-50%);
+  font-family:'Rajdhani',sans-serif;font-size:80px;font-weight:900;
+  color:rgba(245,166,35,.04);letter-spacing:-3px;pointer-events:none;
+  white-space:nowrap;
+}
+.dw-icon{width:52px;height:52px;border-radius:14px;
+  background:linear-gradient(135deg,rgba(245,166,35,.2),rgba(245,166,35,.08));
+  border:1px solid rgba(245,166,35,.3);
+  display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0}
+.dw-text h2{font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:700;color:#fff}
+.dw-text p{font-size:12px;color:var(--muted2);margin-top:2px}
+.dw-text .dw-date{font-size:11px;color:var(--gold);font-weight:600;margin-top:4px}
+
+.alert-card{
+  background:linear-gradient(135deg,rgba(239,68,68,.08),rgba(239,68,68,.04));
+  border:1px solid rgba(239,68,68,.25);border-radius:var(--r2);
+  padding:12px 14px;margin-bottom:12px;
+  display:flex;align-items:flex-start;gap:10px;
+}
+.alert-icon{font-size:20px;flex-shrink:0;margin-top:1px}
+.alert-text h4{font-size:13px;font-weight:700;color:var(--red)}
+.alert-text p{font-size:12px;color:var(--muted3);margin-top:2px}
+
+/* ════════════════════════════════════════════
+   INSTALACIÓN GUIDE (STEPS)
+════════════════════════════════════════════ */
+.steps{display:flex;flex-direction:column;gap:10px}
+.step{
+  background:var(--card);border:1px solid var(--border);border-radius:var(--r2);
+  padding:14px 16px;display:flex;gap:14px;align-items:flex-start;
+}
+.step-num{
+  width:32px;height:32px;border-radius:50%;
+  background:var(--gold-g);color:#0a0f1e;
+  font-family:'Rajdhani',sans-serif;font-size:16px;font-weight:700;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+}
+.step-body h4{font-size:14px;font-weight:700;color:#fff;margin-bottom:4px}
+.step-body p{font-size:12px;color:var(--muted3);line-height:1.5}
+.step-body code{
+  display:block;margin-top:8px;padding:10px 12px;
+  background:var(--bg2);border:1px solid var(--border);border-radius:8px;
+  font-family:monospace;font-size:11px;color:var(--green);
+  word-break:break-all;line-height:1.5;
+}
+.step-body .tip{
+  margin-top:8px;padding:8px 10px;
+  background:rgba(245,166,35,.06);border-left:3px solid var(--gold);
+  border-radius:0 6px 6px 0;font-size:11px;color:#fcd34d;line-height:1.4;
+}
+
+/* ════════════════════════════════════════════
+   LIST ITEMS (Llantas, Repuestos, etc.)
+════════════════════════════════════════════ */
+.list-item{
+  background:var(--card);border:1px solid var(--border);border-radius:var(--r2);
+  margin-bottom:8px;overflow:hidden;
+}
+.li-head{padding:12px 14px;display:flex;align-items:flex-start;gap:10px}
+.li-icon{width:40px;height:40px;border-radius:10px;
+  background:var(--surf2);border:1px solid var(--border);
+  display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.li-info{flex:1}
+.li-info h4{font-size:14px;font-weight:700;color:#fff;line-height:1.2}
+.li-info p{font-size:11px;color:var(--muted2);margin-top:3px}
+.li-right{display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex-shrink:0}
+.li-actions{display:flex;gap:6px;padding:8px 14px;border-top:1px solid var(--border);background:rgba(10,15,30,.3)}
+
+/* expand */
+.expand-btn{width:100%;padding:9px;border-top:1px solid var(--border);
+  font-size:11px;font-weight:700;color:var(--gold);text-align:center;
+  background:rgba(245,166,35,.03);transition:background .15s}
+.expand-btn:active{background:rgba(245,166,35,.08)}
+.expand-body{display:none}.expand-body.open{display:block}
+
+/* admin record */
+.rec{background:var(--card);border:1px solid var(--border);
+  border-radius:var(--r2);margin-bottom:10px;overflow:hidden;
+  border-left:3px solid var(--gold)}
+.rec.hi{border-left-color:var(--green)}.rec.lo{border-left-color:var(--red)}
+.rec-head{padding:12px 14px;display:flex;gap:10px;align-items:flex-start}
+.rec-ico{width:40px;height:40px;border-radius:10px;
+  background:var(--surf2);border:1px solid var(--border);
+  display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.rec-info h4{font-size:13px;font-weight:700;color:#fff;line-height:1.2}
+.rec-info .rm{font-size:11px;color:var(--muted2);margin-top:2px}
+.rec-info .ro{font-size:11px;color:var(--gold);margin-top:3px;font-style:italic}
+.rec-right{display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0}
+</style>
+</head>
+<body>
+
+<!-- ════ LOGIN ════ -->
+<div class="screen on" id="s-login">
+  <div class="login-wrap">
+    <div class="login-hero">
+      <div class="login-badge">
+        <span class="badge-eco">ECOSEM</span>
+        <span class="badge-sub">Huaraucaca S.A.C.</span>
+      </div>
+      <h1>Sistema Digital de<br><em>Inspección</em></h1>
+      <p>GESTIÓN INTEGRAL DE FLOTA Y EQUIPOS</p>
+    </div>
+    <div class="login-card">
+      <div class="ltabs">
+        <button class="ltab on" onclick="lTab('tec')">🔧 Técnico</button>
+        <button class="ltab" onclick="lTab('admin')">🛡️ Admin</button>
+        <button class="ltab" onclick="lTab('cfg')">⚙️ Config</button>
+      </div>
+      <div class="lsec on" id="lsec-tec">
+        <div class="f"><label>Nombre del Inspector / Técnico</label>
+          <input id="l-nom" type="text" placeholder="Ej: Carlos Mamani Quispe" autocomplete="name"></div>
+        <div class="f"><label>Cargo</label>
+          <select id="l-cargo">
+            <option value="">— Seleccionar —</option>
+            <option>Mecánico</option><option>Electricista</option><option>Operador</option>
+            <option>Supervisor</option><option>Conductor Inspector</option><option>Jefe de Mantenimiento</option>
+          </select></div>
+        <div class="f"><label>Área</label>
+          <select id="l-area">
+            <option value="">— Seleccionar —</option>
+            <option>Mantenimiento</option><option>Operaciones</option>
+            <option>Transporte</option><option>Seguridad</option>
+          </select></div>
+        <button class="btn-main" onclick="entrarTec()">Ingresar →</button>
+      </div>
+      <div class="lsec" id="lsec-admin">
+        <div class="f"><label>Clave de Administrador</label>
+          <input id="l-pass" type="password" placeholder="••••••••"></div>
+        <button class="btn-main" onclick="entrarAdmin()">Acceder al Panel Admin →</button>
+      </div>
+      <div class="lsec" id="lsec-cfg">
+        <div class="hint">⚙️ Configura Firebase una sola vez. Tus datos quedan en este dispositivo.</div>
+        <div class="f"><label>Firebase API Key</label>
+          <input id="cfg-k" type="text" placeholder="AIzaSy..." autocorrect="off" spellcheck="false"></div>
+        <div class="f"><label>Firebase Project ID</label>
+          <input id="cfg-p" type="text" placeholder="ecosem-ot" autocorrect="off" spellcheck="false"></div>
+        <div class="f"><label>Clave de Admin</label>
+          <input id="cfg-a" type="text" placeholder="Define la clave del panel admin"></div>
+        <button class="btn-main" onclick="saveCfg()">💾 Guardar Configuración</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════ APP ════ -->
+<div class="screen" id="s-app">
+
+  <!-- APPBAR -->
+  <div class="appbar">
+    <div class="ab-brand">
+      <div class="ab-pulse"></div>
+      <div>
+        <div class="ab-title">ECOSEM</div>
+        <div class="ab-sub" id="ab-sub">Sistema Digital de Inspección</div>
+      </div>
+    </div>
+    <div class="ab-right">
+      <div class="ab-user" id="ab-user"><span id="ab-nom">—</span></div>
+      <button class="ab-btn" onclick="showMod('cfg')">⚙️</button>
+    </div>
+  </div>
+
+  <!-- MODULE TABS -->
+  <div class="mod-tabs" id="mod-tabs">
+    <button class="mt on" id="mt-dash" onclick="showMod('dash')"><span class="mi">📊</span>Dashboard</button>
+    <button class="mt" id="mt-chk" onclick="showMod('chk')"><span class="mi">✅</span>Checklist</button>
+    <button class="mt" id="mt-mant" onclick="showMod('mant')"><span class="mi">🔧</span>Mantenimiento</button>
+    <button class="mt" id="mt-llan" onclick="showMod('llan')"><span class="mi">🔵</span>Llantas</button>
+    <button class="mt" id="mt-rep" onclick="showMod('rep')"><span class="mi">📦</span>Repuestos</button>
+    <button class="mt" id="mt-admin" onclick="showMod('admin')" style="display:none"><span class="mi">🛡️</span>Admin</button>
+    <button class="mt" id="mt-inst" onclick="showMod('inst')"><span class="mi">📖</span>Guía</button>
+    <button class="mt" id="mt-cfg" onclick="showMod('cfg')"><span class="mi">⚙️</span>Config</button>
+  </div>
+
+  <!-- ══════════ DASHBOARD ══════════ -->
+  <div class="scroll" id="mod-dash" style="display:block">
+
+    <div class="dash-welcome">
+      <div class="dw-icon">🚛</div>
+      <div class="dw-text">
+        <h2>Panel de Control</h2>
+        <p>ECOSEM Huaraucaca S.A.C.</p>
+        <div class="dw-date" id="dw-date">—</div>
+      </div>
+    </div>
+
+    <div class="sec-title">📈 KPIs del Sistema</div>
+    <div class="kpi-grid" id="kpi-grid">
+      <div class="kpi green"><span class="kpi-icon">✅</span>
+        <div class="kpi-val" id="kpi-chk">—</div><div class="kpi-lbl">Checklist Hoy</div>
+        <div class="kpi-trend trend-up" id="kpi-chk-t">Cargando...</div></div>
+      <div class="kpi red"><span class="kpi-icon">⚠️</span>
+        <div class="kpi-val" id="kpi-obs">—</div><div class="kpi-lbl">Obs. Críticas</div>
+        <div class="kpi-trend trend-dn" id="kpi-obs-t">sin resolver</div></div>
+      <div class="kpi blue"><span class="kpi-icon">🔧</span>
+        <div class="kpi-val" id="kpi-mant">—</div><div class="kpi-lbl">Mantenimientos</div>
+        <div class="kpi-trend trend-eq" id="kpi-mant-t">este mes</div></div>
+      <div class="kpi"><span class="kpi-icon">🔵</span>
+        <div class="kpi-val" id="kpi-llan">—</div><div class="kpi-lbl">Llantas Alertas</div>
+        <div class="kpi-trend trend-dn" id="kpi-llan-t">por cambio</div></div>
+      <div class="kpi purple"><span class="kpi-icon">📦</span>
+        <div class="kpi-val" id="kpi-rep">—</div><div class="kpi-lbl">Stock Bajo</div>
+        <div class="kpi-trend trend-dn" id="kpi-rep-t">repuestos</div></div>
+      <div class="kpi green"><span class="kpi-icon">📊</span>
+        <div class="kpi-val" id="kpi-pct">—</div><div class="kpi-lbl">% Aprobados</div>
+        <div class="kpi-trend trend-up" id="kpi-pct-t">promedio global</div></div>
+    </div>
+
+    <div class="sec-title">📉 Checklist por Equipo (últimos 30 días)</div>
+    <div class="card">
+      <div class="chart-wrap"><canvas id="chart-eq"></canvas></div>
+    </div>
+
+    <div class="sec-title">📅 Actividad Semanal</div>
+    <div class="card">
+      <div class="chart-wrap"><canvas id="chart-week"></canvas></div>
+    </div>
+
+    <div class="sec-title">🔴 Alertas Activas</div>
+    <div id="dash-alerts">
+      <div class="empty"><div class="spin"></div><p>Cargando alertas...</p></div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn-sm btn-blue" onclick="exportarPPT()">📊 Informe PPT</button>
+      <button class="btn-sm btn-gold" onclick="exportarExcelAdmin()">📥 Excel Global</button>
+      <button class="btn-sm btn-outline" onclick="cargarDashboard()">🔄 Actualizar</button>
+    </div>
+  </div>
+
+  <!-- ══════════ CHECKLIST ══════════ -->
+  <div class="scroll" id="mod-chk" style="display:none">
+
+    <!-- Tipo de equipo -->
+    <div class="sec-title">🚗 Seleccionar Tipo de Equipo</div>
+    <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:14px" id="eq-grid"></div>
+
+    <!-- Datos del equipo -->
+    <div class="card">
+      <div class="card-head"><h3>📋 Datos del Equipo</h3></div>
+      <div class="card-body">
+        <div class="fg2">
+          <div class="fi"><label>Código / Placa</label>
+            <input id="c-cod" type="text" placeholder="T-001 / ABC-123" autocapitalize="characters" autocorrect="off"></div>
+          <div class="fi"><label>Marca / Modelo</label>
+            <input id="c-mod" type="text" placeholder="VOLVO FH" autocorrect="off"></div>
+          <div class="fi"><label>Fecha</label><input id="c-fecha" type="date"></div>
+          <div class="fi"><label>Hora</label><input id="c-hora" type="time"></div>
+          <div class="fi"><label>Horómetro / KM</label>
+            <input id="c-km" type="tel" inputmode="numeric" placeholder="12500"></div>
+          <div class="fi"><label>Tipo de Inspección</label>
+            <select id="c-tipo">
+              <option value="">— Seleccionar —</option>
+              <option>Pre-operativa</option><option>Post-mantenimiento</option>
+              <option>Periódica</option><option>Instalación Nueva</option>
+            </select></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Leyenda -->
+    <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center;
+      background:var(--card);border:1px solid var(--border);border-radius:var(--r);
+      padding:10px 14px;margin-bottom:12px">
+      <span style="display:flex;align-items:center;gap:5px;font-size:11px;font-weight:700">
+        <span style="width:10px;height:10px;border-radius:3px;background:var(--green);display:inline-block"></span>
+        <span style="color:var(--text2)">B = Bueno</span></span>
+      <span style="display:flex;align-items:center;gap:5px;font-size:11px;font-weight:700">
+        <span style="width:10px;height:10px;border-radius:3px;background:var(--red);display:inline-block"></span>
+        <span style="color:var(--text2)">M = Mal Estado</span></span>
+      <span style="display:flex;align-items:center;gap:5px;font-size:11px;font-weight:700">
+        <span style="width:10px;height:10px;border-radius:3px;background:var(--muted2);display:inline-block"></span>
+        <span style="color:var(--text2)">NA = No Aplica</span></span>
+      <span style="font-size:10px;color:var(--gold);font-weight:700;
+        background:rgba(245,166,35,.1);padding:2px 7px;border-radius:4px">NN = No Negociable</span>
+    </div>
+
+    <!-- Resumen -->
+    <div class="kpi-grid" style="margin-bottom:12px">
+      <div class="kpi green"><div class="kpi-val" id="rc-b" style="font-size:22px">0</div><div class="kpi-lbl">Bueno</div></div>
+      <div class="kpi red"><div class="kpi-val" id="rc-m" style="font-size:22px">0</div><div class="kpi-lbl">Mal Estado</div></div>
+      <div class="kpi"><div class="kpi-val" id="rc-na" style="font-size:22px">0</div><div class="kpi-lbl">No Aplica</div></div>
+      <div class="kpi blue"><div class="kpi-val" id="rc-pend" style="font-size:22px;color:var(--blue)">0</div><div class="kpi-lbl">Pendiente</div></div>
+    </div>
+    <div class="pbar pbar-green" style="margin-bottom:14px;height:8px">
+      <div class="pbar-fill pbar-gold" id="rc-prog" style="width:0%"></div>
+    </div>
+
+    <!-- Checklist dinámico -->
+    <div id="chk-container"></div>
+
+    <!-- Observaciones y firma -->
+    <div class="card">
+      <div class="card-head"><h3>🔴 Observaciones Finales</h3></div>
+      <div class="card-body">
+        <div class="fi"><label>Hallazgos / Defectos</label>
+          <textarea id="c-obs" rows="3" placeholder="Describir fallas, anomalías, trabajos pendientes..."></textarea></div>
+        <div class="fg2">
+          <div class="fi"><label>Firma Técnico</label><input id="c-firma" type="text" placeholder="Nombre completo"></div>
+          <div class="fi"><label>Firma Supervisor</label><input id="c-fsup" type="text" placeholder="Nombre completo"></div>
+        </div>
+      </div>
+    </div>
+
+    <button class="btn-main" id="btn-send-chk" onclick="enviarChecklist()">☁️ Enviar Inspección a la Nube</button>
+    <div style="text-align:center;margin-top:10px;font-size:13px;color:var(--muted2);min-height:18px" id="chk-st"></div>
+  </div>
+
+  <!-- ══════════ MANTENIMIENTO ══════════ -->
+  <div class="scroll" id="mod-mant" style="display:none">
+    <div class="sec-title">🔧 Registro de Mantenimiento</div>
+
+    <div id="lista-mant">
+      <div class="empty"><div class="spin"></div><p>Cargando...</p></div>
+    </div>
+
+    <button class="fab" onclick="abrirModalMant()">+</button>
+  </div>
+
+  <!-- ══════════ LLANTAS ══════════ -->
+  <div class="scroll" id="mod-llan" style="display:none">
+    <div class="sec-title">🔵 Control de Llantas</div>
+
+    <div class="kpi-grid-3" style="margin-bottom:14px">
+      <div class="kpi green"><div class="kpi-val" id="ll-ok" style="font-size:20px">—</div><div class="kpi-lbl">Operativas</div></div>
+      <div class="kpi"><div class="kpi-val" id="ll-alerta" style="font-size:20px;color:var(--gold)">—</div><div class="kpi-lbl">Alertas</div></div>
+      <div class="kpi red"><div class="kpi-val" id="ll-cambio" style="font-size:20px">—</div><div class="kpi-lbl">Por cambiar</div></div>
+    </div>
+
+    <div id="lista-llan">
+      <div class="empty"><div class="spin"></div><p>Cargando...</p></div>
+    </div>
+
+    <button class="fab" onclick="abrirModalLlan()">+</button>
+  </div>
+
+  <!-- ══════════ REPUESTOS ══════════ -->
+  <div class="scroll" id="mod-rep" style="display:none">
+    <div class="sec-title">📦 Control de Repuestos</div>
+
+    <div class="kpi-grid-3" style="margin-bottom:14px">
+      <div class="kpi"><div class="kpi-val" id="rp-total" style="font-size:20px;color:var(--blue)">—</div><div class="kpi-lbl">Total items</div></div>
+      <div class="kpi red"><div class="kpi-val" id="rp-bajo" style="font-size:20px">—</div><div class="kpi-lbl">Stock bajo</div></div>
+      <div class="kpi purple"><div class="kpi-val" id="rp-agot" style="font-size:20px;color:var(--purple)">—</div><div class="kpi-lbl">Agotados</div></div>
+    </div>
+
+    <!-- Buscar -->
+    <div class="fi" style="margin-bottom:12px">
+      <label>Buscar repuesto</label>
+      <input id="rep-search" type="text" placeholder="Nombre, código, categoría..." oninput="filtrarRepuestos()">
+    </div>
+
+    <div id="lista-rep">
+      <div class="empty"><div class="spin"></div><p>Cargando...</p></div>
+    </div>
+
+    <button class="fab" onclick="abrirModalRep()">+</button>
+  </div>
+
+  <!-- ══════════ ADMIN ══════════ -->
+  <div class="scroll" id="mod-admin" style="display:none">
+    <div class="sec-title">🛡️ Panel Administrador</div>
+
+    <div class="kpi-grid" style="margin-bottom:14px">
+      <div class="kpi"><div class="kpi-val" id="adm-tot" style="font-size:22px;color:var(--gold)">—</div><div class="kpi-lbl">Total Registros</div></div>
+      <div class="kpi green"><div class="kpi-val" id="adm-hoy" style="font-size:22px">—</div><div class="kpi-lbl">Registros Hoy</div></div>
+      <div class="kpi blue"><div class="kpi-val" id="adm-avg" style="font-size:22px">—</div><div class="kpi-lbl">% Prom. OK</div></div>
+      <div class="kpi red"><div class="kpi-val" id="adm-crit" style="font-size:22px">—</div><div class="kpi-lbl">Críticos M</div></div>
+    </div>
+
+    <div class="btn-row" style="margin-bottom:14px">
+      <button class="btn-sm btn-blue" onclick="exportarPPT()">📊 Informe PPT</button>
+      <button class="btn-sm btn-gold" onclick="exportarExcelAdmin()">📥 Excel Completo</button>
+      <button class="btn-sm btn-outline" onclick="cargarAdmin()">🔄 Actualizar</button>
+    </div>
+
+    <!-- Filtros -->
+    <div class="fg2" style="margin-bottom:12px">
+      <div class="fi"><label>Fecha</label><input id="af-fecha" type="date" onchange="filtrarAdmin()"></div>
+      <div class="fi"><label>Equipo</label>
+        <select id="af-eq" onchange="filtrarAdmin()"><option value="">Todos</option></select></div>
+    </div>
+
+    <div id="lista-admin">
+      <div class="empty"><div class="spin"></div><p>Cargando...</p></div>
+    </div>
+  </div>
+
+  <!-- ══════════ GUÍA DE INSTALACIÓN ══════════ -->
+  <div class="scroll" id="mod-inst" style="display:none">
+    <div class="sec-title">📖 Guía de Instalación y Configuración</div>
+
+    <div class="card" style="margin-bottom:14px">
+      <div class="card-head"><h3>🌐 ¿Cómo funciona este sistema?</h3></div>
+      <div class="card-body">
+        <p style="font-size:13px;color:var(--muted3);line-height:1.6">
+          Este es un archivo HTML único que funciona como una app web. Los datos se guardan en
+          <strong style="color:var(--gold)">Firebase Firestore</strong> (nube de Google). Los técnicos lo usan
+          desde su celular y los administradores ven todo en el panel.
+        </p>
+      </div>
+    </div>
+
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body">
+          <h4>Crear proyecto Firebase</h4>
+          <p>Ve a <strong style="color:var(--gold)">console.firebase.google.com</strong> → Crear proyecto → Nombre: <em>ecosem-ot</em></p>
+          <div class="tip">💡 Usa tu cuenta Google de ECOSEM para que sea de la empresa.</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body">
+          <h4>Obtener credenciales</h4>
+          <p>En Firebase: Configuración del proyecto → Tu app web → Registrar app → Copia el <strong>apiKey</strong> y <strong>projectId</strong></p>
+          <code>apiKey: "AIzaSy..."
+projectId: "ecosem-ot"</code>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-body">
+          <h4>Activar Firestore</h4>
+          <p>En Firebase: Firestore Database → Crear base de datos → Modo de producción → Región: us-central1</p>
+          <div class="tip">⚠️ Luego ve a Reglas y cambia <code style="font-size:10px;display:inline;padding:1px 4px">allow read, write: if false</code> por <code style="font-size:10px;display:inline;padding:1px 4px">allow read, write: if true</code> (temporal para pruebas)</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-body">
+          <h4>Configurar en la app</h4>
+          <p>En esta app → tab <strong style="color:var(--gold)">Config</strong> → Pega el API Key y Project ID → Define la clave admin → Guardar</p>
+          <div class="tip">✅ Los datos se guardan en este dispositivo. Cada celular necesita hacer esto una sola vez.</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">5</div>
+        <div class="step-body">
+          <h4>Publicar en Cloudflare Pages</h4>
+          <p>Sube este archivo como <strong>index.html</strong> a GitHub → Conecta tu repo en Cloudflare Pages → Se despliega automáticamente</p>
+          <code>github.com → marchuaman15-web/ecosem-huaraucaca-v6
+→ Reemplazar index.html → Push → Deploy</code>
+          <div class="tip">🌐 Todos los técnicos acceden desde su celular con la URL de Cloudflare.</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">6</div>
+        <div class="step-body">
+          <h4>Distribuir a técnicos</h4>
+          <p>Comparte la URL por WhatsApp. Los técnicos pueden agregar la página a su pantalla de inicio como si fuera una app.</p>
+          <div class="tip">📱 En Chrome: menú (...) → Agregar a pantalla de inicio → Icono de ECOSEM en el celular</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">7</div>
+        <div class="step-body">
+          <h4>Módulos disponibles</h4>
+          <p>El sistema tiene 5 módulos independientes:</p>
+          <code>✅ CHECKLIST — Inspección B/M/NA por equipo
+🔧 MANTENIMIENTO — OTs, historial, costos
+🔵 LLANTAS — Control por posición y vida útil
+📦 REPUESTOS — Stock, alertas, movimientos
+📊 DASHBOARD — KPIs, gráficos, informes PPT</code>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ CONFIG ══════════ -->
+  <div class="scroll" id="mod-cfg" style="display:none">
+    <div class="sec-title">⚙️ Configuración</div>
+    <div class="card">
+      <div class="card-head"><h3>👤 Sesión Activa</h3></div>
+      <div class="card-body">
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)">
+            <span style="font-size:13px;color:var(--text2)">Rol</span>
+            <span style="font-size:13px;font-weight:700;color:var(--gold)" id="ci-rol">—</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)">
+            <span style="font-size:13px;color:var(--text2)">Nombre</span>
+            <span style="font-size:13px;font-weight:700;color:var(--gold)" id="ci-nom">—</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:8px 0">
+            <span style="font-size:13px;color:var(--text2)">Firebase Project</span>
+            <span style="font-size:13px;font-weight:700;color:var(--gold)" id="ci-proj">—</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-head"><h3>⚙️ Firebase</h3></div>
+      <div class="card-body">
+        <div class="fi"><label>API Key</label><input id="ci-k" type="text" placeholder="AIzaSy..." autocorrect="off" spellcheck="false"></div>
+        <div class="fi"><label>Project ID</label><input id="ci-p" type="text" placeholder="ecosem-ot" autocorrect="off" spellcheck="false"></div>
+        <div class="fi"><label>Clave Admin</label><input id="ci-a" type="text" placeholder="Clave del panel admin"></div>
+        <button class="btn-main" style="margin-top:4px" onclick="saveCfgApp()">💾 Actualizar</button>
+      </div>
+    </div>
+    <button style="width:100%;padding:14px;border-radius:var(--r);border:1.5px solid var(--red);
+      color:var(--red);font-size:15px;font-weight:700;background:transparent;margin-top:4px"
+      onclick="logout()">🚪 Cerrar Sesión</button>
+  </div>
+
+  <!-- BOTTOM NAV (solo 3 items para técnicos) -->
+  <div class="bnav" id="bnav" style="display:none">
+    <button class="bn on" id="bn-dash" onclick="showMod('dash')">
+      <span class="bi">📊</span><span class="bl">Dashboard</span></button>
+    <button class="bn" id="bn-chk" onclick="showMod('chk')">
+      <span class="bi">✅</span><span class="bl">Checklist</span></button>
+    <button class="bn" id="bn-mant" onclick="showMod('mant')">
+      <span class="bi">🔧</span><span class="bl">Mantenim.</span></button>
+    <button class="bn" id="bn-llan" onclick="showMod('llan')">
+      <span class="bi">🔵</span><span class="bl">Llantas</span></button>
+    <button class="bn" id="bn-rep" onclick="showMod('rep')">
+      <span class="bi">📦</span><span class="bl">Repuestos</span></button>
+  </div>
+</div>
+
+<!-- ════ MODALES ════ -->
+<!-- Modal Mantenimiento -->
+<div class="modal-bg" id="m-mant">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-head">
+      <h2>🔧 Nuevo Mantenimiento</h2>
+      <button class="modal-close" onclick="cerrarModal('m-mant')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="fg2">
+        <div class="fi fi-full"><label>Equipo / Código</label>
+          <input id="m-eq" type="text" placeholder="T-001 / Tracto VOLVO"></div>
+        <div class="fi"><label>Fecha</label><input id="m-fecha" type="date"></div>
+        <div class="fi"><label>Tipo</label>
+          <select id="m-tipo">
+            <option value="">— Tipo —</option>
+            <option>Preventivo</option><option>Correctivo</option>
+            <option>Predictivo</option><option>Emergencia</option>
+          </select></div>
+        <div class="fi fi-full"><label>Trabajos Realizados</label>
+          <textarea id="m-trabajos" rows="3" placeholder="Describir trabajos..."></textarea></div>
+        <div class="fi"><label>Mecánico</label><input id="m-mec" type="text" placeholder="Nombre mecánico"></div>
+        <div class="fi"><label>Horómetro / KM</label>
+          <input id="m-km" type="tel" inputmode="numeric" placeholder="12500"></div>
+        <div class="fi"><label>Próx. Mantenim. (KM)</label>
+          <input id="m-prox" type="tel" inputmode="numeric" placeholder="15000"></div>
+        <div class="fi"><label>Costo (S/.)</label>
+          <input id="m-costo" type="tel" inputmode="decimal" placeholder="0.00"></div>
+        <div class="fi fi-full"><label>Repuestos Usados</label>
+          <textarea id="m-repuestos" rows="2" placeholder="Lista de repuestos utilizados..."></textarea></div>
+        <div class="fi fi-full"><label>Observaciones</label>
+          <textarea id="m-obs" rows="2" placeholder="Observaciones adicionales..."></textarea></div>
+        <div class="fi"><label>Estado</label>
+          <select id="m-estado">
+            <option value="">— Estado —</option>
+            <option>Completado</option><option>En Proceso</option><option>Pendiente</option>
+          </select></div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn-sm btn-outline" onclick="cerrarModal('m-mant')" style="flex:1;padding:14px">Cancelar</button>
+      <button class="btn-main" style="flex:2" onclick="guardarMant()">☁️ Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Llanta -->
+<div class="modal-bg" id="m-llan">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-head">
+      <h2>🔵 Registrar Llanta</h2>
+      <button class="modal-close" onclick="cerrarModal('m-llan')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="fg2">
+        <div class="fi"><label>Equipo / Placa</label><input id="ll-eq" type="text" placeholder="T-001"></div>
+        <div class="fi"><label>Posición</label>
+          <select id="ll-pos">
+            <option value="">— Pos. —</option>
+            <option>P1 Dir. Izq.</option><option>P2 Dir. Der.</option>
+            <option>P3 Tras. Ext. Izq.</option><option>P4 Tras. Int. Izq.</option>
+            <option>P5 Tras. Int. Der.</option><option>P6 Tras. Ext. Der.</option>
+            <option>P7 Carreta Ext. Izq.</option><option>P8 Carreta Int. Izq.</option>
+            <option>P9 Carreta Int. Der.</option><option>P10 Carreta Ext. Der.</option>
+            <option>P11</option><option>P12</option><option>Repuesto</option>
+          </select></div>
+        <div class="fi"><label>Marca</label><input id="ll-marca" type="text" placeholder="Bridgestone"></div>
+        <div class="fi"><label>Medida</label><input id="ll-med" type="text" placeholder="315/80R22.5"></div>
+        <div class="fi"><label>N° Serie</label><input id="ll-serie" type="text" placeholder="Serie..."></div>
+        <div class="fi"><label>Fecha Instalación</label><input id="ll-fecha" type="date"></div>
+        <div class="fi"><label>KM Instalación</label>
+          <input id="ll-km-ini" type="tel" inputmode="numeric" placeholder="0"></div>
+        <div class="fi"><label>KM Actual</label>
+          <input id="ll-km-act" type="tel" inputmode="numeric" placeholder="0"></div>
+        <div class="fi"><label>Prof. Labrado (mm)</label>
+          <input id="ll-prof" type="tel" inputmode="decimal" placeholder="16"></div>
+        <div class="fi"><label>Presión (PSI)</label>
+          <input id="ll-psi" type="tel" inputmode="decimal" placeholder="120"></div>
+        <div class="fi"><label>Estado</label>
+          <select id="ll-est">
+            <option value="">— Estado —</option>
+            <option>Operativa</option><option>Alerta</option>
+            <option>Por cambiar</option><option>Reencauchada</option>
+          </select></div>
+        <div class="fi"><label>Observaciones</label>
+          <textarea id="ll-obs" rows="2" placeholder="Observaciones..."></textarea></div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn-sm btn-outline" onclick="cerrarModal('m-llan')" style="flex:1;padding:14px">Cancelar</button>
+      <button class="btn-main" style="flex:2" onclick="guardarLlan()">☁️ Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Repuesto -->
+<div class="modal-bg" id="m-rep">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-head">
+      <h2>📦 Registrar Repuesto</h2>
+      <button class="modal-close" onclick="cerrarModal('m-rep')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="fg2">
+        <div class="fi fi-full"><label>Nombre del Repuesto</label>
+          <input id="rp-nom" type="text" placeholder="Ej: Filtro de aceite Volvo FH"></div>
+        <div class="fi"><label>Código / Parte N°</label>
+          <input id="rp-cod" type="text" placeholder="VOL-1234" autocorrect="off"></div>
+        <div class="fi"><label>Categoría</label>
+          <select id="rp-cat">
+            <option value="">— Categoría —</option>
+            <option>Motor</option><option>Frenos</option><option>Suspensión</option>
+            <option>Transmisión</option><option>Eléctrico</option><option>Filtros</option>
+            <option>Hidráulico</option><option>Carrocería</option><option>Otro</option>
+          </select></div>
+        <div class="fi"><label>Unidad</label>
+          <select id="rp-uni">
+            <option>Und</option><option>Litros</option><option>Kg</option>
+            <option>Metros</option><option>Pares</option>
+          </select></div>
+        <div class="fi"><label>Stock Actual</label>
+          <input id="rp-stock" type="tel" inputmode="numeric" placeholder="0"></div>
+        <div class="fi"><label>Stock Mínimo</label>
+          <input id="rp-min" type="tel" inputmode="numeric" placeholder="2"></div>
+        <div class="fi"><label>Precio Unitario (S/.)</label>
+          <input id="rp-precio" type="tel" inputmode="decimal" placeholder="0.00"></div>
+        <div class="fi"><label>Proveedor</label>
+          <input id="rp-prov" type="text" placeholder="Nombre proveedor"></div>
+        <div class="fi"><label>Equipo Compatible</label>
+          <input id="rp-comp" type="text" placeholder="Tractos, Buses, etc."></div>
+        <div class="fi"><label>Ubicación en Almacén</label>
+          <input id="rp-ubic" type="text" placeholder="Estante A-3"></div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn-sm btn-outline" onclick="cerrarModal('m-rep')" style="flex:1;padding:14px">Cancelar</button>
+      <button class="btn-main" style="flex:2" onclick="guardarRep()">☁️ Guardar</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+/* ════════════════════════════════════════════════════
+   DATOS — CHECKLIST POR EQUIPO
+════════════════════════════════════════════════════ */
+const EQUIPOS_CHK = [
+  {id:'tractos',n:'Tractos',ic:'🚚',secs:[
+    {n:'Motor y Fluidos',it:[
+      {t:'Nivel de aceite motor (MIN–MAX)',nn:true},{t:'Nivel de refrigerante',nn:true},
+      {t:'Nivel de líquido de frenos',nn:true},{t:'Sin fugas aceite/refrigerante',nn:true},
+      {t:'Correa de alternador OK'},{t:'Filtro de aire vigente'},
+    ]},
+    {n:'Sistema de Frenos',it:[
+      {t:'Presión de aire ≥100 PSI',nn:true},{t:'Sin fugas de aire',nn:true},
+      {t:'Freno de servicio OK',nn:true},{t:'Freno de parqueo OK',nn:true},
+      {t:'ABS funcional',nn:true},{t:'Zapatas dentro del límite',nn:true},
+    ]},
+    {n:'Eléctrico y Seguridad',it:[
+      {t:'Batería con carga y bornes limpios',nn:true},
+      {t:'Luces delanteras y traseras',nn:true},
+      {t:'Luces de freno e intermitentes',nn:true},
+      {t:'Tablero sin alarmas activas',nn:true},
+      {t:'Bocina operativa'},{t:'Cinturón de seguridad',nn:true},
+      {t:'Extintor vigente',nn:true},{t:'Triángulos de emergencia',nn:true},
+    ]},
+    {n:'Transmisión y Chasis',it:[
+      {t:'Quinta rueda limpia y lubricada',nn:true},
+      {t:'Sin fugas en caja ni diferencial'},
+      {t:'Crucetas de cardán sin juego'},{t:'Suspensión sin rotura',nn:true},
+      {t:'Dirección sin juego excesivo',nn:true},
+    ]},
+    {n:'Documentación',it:[
+      {t:'SOAT vigente',nn:true},{t:'Revisión técnica vigente',nn:true},
+      {t:'Licencia de conducir vigente',nn:true},{t:'Autorización ECOSEM'},
+    ]},
+    {n:'Prueba Funcional',it:[
+      {t:'Arranque sin humo excesivo',nn:true},{t:'Frenos: prueba dinámica',nn:true},
+      {t:'Caja: todos los rangos OK',nn:true},{t:'Sin vibraciones anormales'},
+    ]},
+  ]},
+  {id:'buses',n:'Buses',ic:'🚌',secs:[
+    {n:'Motor y Frenos',it:[
+      {t:'Nivel de aceite motor',nn:true},{t:'Nivel de refrigerante',nn:true},
+      {t:'Sin fugas visibles',nn:true},{t:'Frenos de servicio OK',nn:true},
+      {t:'Freno de parqueo OK',nn:true},
+    ]},
+    {n:'Seguridad Pasajeros',it:[
+      {t:'Cinturones en TODOS los asientos',nn:true},
+      {t:'Puertas de emergencia operativas',nn:true},
+      {t:'Martillos de emergencia presentes',nn:true},
+      {t:'Extintor vigente y accesible',nn:true},
+      {t:'Botiquín completo',nn:true},{t:'Luces completas operativas',nn:true},
+    ]},
+    {n:'Documentación',it:[
+      {t:'SOAT vigente',nn:true},{t:'Revisión técnica vigente',nn:true},
+      {t:'Licencia AIII vigente',nn:true},
+    ]},
+    {n:'Prueba Funcional',it:[
+      {t:'Arranque correcto',nn:true},{t:'Frenos: prueba dinámica',nn:true},
+      {t:'Puertas abren y cierran OK',nn:true},
+    ]},
+  ]},
+  {id:'camionetas',n:'Camionetas',ic:'🚙',secs:[
+    {n:'Motor y Seguridad',it:[
+      {t:'Nivel de aceite motor',nn:true},{t:'Nivel de refrigerante',nn:true},
+      {t:'Sin fugas visibles',nn:true},{t:'Cinturones operativos',nn:true},
+      {t:'Extintor vigente',nn:true},{t:'Botiquín completo',nn:true},
+    ]},
+    {n:'Eléctrico y Documentos',it:[
+      {t:'Luces completas operativas',nn:true},{t:'Frenos OK',nn:true},
+      {t:'Neumáticos con presión correcta',nn:true},
+      {t:'SOAT vigente',nn:true},{t:'Revisión técnica vigente',nn:true},
+    ]},
+    {n:'Prueba Funcional',it:[
+      {t:'Arranque correcto',nn:true},{t:'Frenos: respuesta correcta',nn:true},
+      {t:'Sin ruidos ni vibraciones',nn:true},
+    ]},
+  ]},
+  {id:'minivan',n:'Minivan',ic:'🚐',secs:[
+    {n:'Seguridad y Documentos',it:[
+      {t:'Nivel de aceite motor',nn:true},{t:'Sin fugas visibles',nn:true},
+      {t:'Frenos OK',nn:true},{t:'Cinturones en todos los asientos',nn:true},
+      {t:'Extintor vigente',nn:true},{t:'SOAT vigente',nn:true},
+      {t:'Licencia vigente',nn:true},{t:'Revisión técnica vigente',nn:true},
+    ]},
+    {n:'Prueba Funcional',it:[
+      {t:'Arranque correcto',nn:true},{t:'Frenos dinámicos OK',nn:true},
+      {t:'Luces completas',nn:true},
+    ]},
+  ]},
+  {id:'cist_agua',n:'Cisterna Agua',ic:'💧',secs:[
+    {n:'Vehículo y Tanque',it:[
+      {t:'Nivel de aceite motor',nn:true},{t:'Sin fugas aceite/refrigerante',nn:true},
+      {t:'Tanque sin fisuras ni fugas',nn:true},{t:'Válvulas de descarga OK',nn:true},
+      {t:'Bomba de agua operativa',nn:true},{t:'Luces completas',nn:true},
+      {t:'Extintor vigente',nn:true},
+    ]},
+    {n:'Prueba Funcional',it:[
+      {t:'Bomba: arranque y parada OK',nn:true},
+      {t:'Sin fugas en operación plena',nn:true},
+      {t:'Sistema de aspersión operativo',nn:true},
+    ]},
+  ]},
+  {id:'cist_comb',n:'Cisterna Comb.',ic:'⛽',secs:[
+    {n:'Tanque y MATPEL',it:[
+      {t:'Tanque sin fisuras ni filtraciones',nn:true},
+      {t:'Válvulas de seguridad operativas',nn:true},
+      {t:'Diamante NFPA visible',nn:true},
+      {t:'Cable de tierra (bonding) OK',nn:true},
+      {t:'Extintores PQS ≥9kg (mín. 2)',nn:true},
+      {t:'Kit antiderrame completo',nn:true},
+      {t:'Hoja MSDS a bordo',nn:true},
+    ]},
+    {n:'Prueba Funcional',it:[
+      {t:'Bomba de trasiego operativa',nn:true},
+      {t:'Sin fugas en operación plena',nn:true},
+      {t:'Cable tierra hace contacto',nn:true},
+    ]},
+  ]},
+  {id:'maq_pesada',n:'Maquinaria Pesada',ic:'⛏️',secs:[
+    {n:'Motor e Hidráulico',it:[
+      {t:'Nivel de aceite motor',nn:true},{t:'Nivel de refrigerante',nn:true},
+      {t:'Nivel de aceite hidráulico',nn:true},{t:'Sin fugas de aceite o hidráulico',nn:true},
+      {t:'Cilindros sin fugas',nn:true},
+    ]},
+    {n:'Seguridad',it:[
+      {t:'ROPS/FOPS sin daños',nn:true},{t:'Cinturón de seguridad OK',nn:true},
+      {t:'Alarma de retroceso activa',nn:true},{t:'Extintor vigente',nn:true},
+      {t:'Sin alarmas en tablero',nn:true},
+    ]},
+    {n:'Prueba Funcional',it:[
+      {t:'Arranque correcto',nn:true},{t:'Frenos de parqueo OK',nn:true},
+      {t:'Todos los movimientos hidráulicos responden',nn:true},
+    ]},
+  ]},
+  {id:'camiones',n:'Camiones',ic:'🚛',secs:[
+    {n:'Motor y Frenos',it:[
+      {t:'Nivel de aceite motor',nn:true},{t:'Nivel de refrigerante',nn:true},
+      {t:'Sin fugas visibles',nn:true},{t:'Frenos de servicio OK',nn:true},
+      {t:'Freno de parqueo OK',nn:true},{t:'ABS funcional',nn:true},
+    ]},
+    {n:'Eléctrico y Seguridad',it:[
+      {t:'Luces completas operativas',nn:true},{t:'Tablero sin alarmas',nn:true},
+      {t:'Cinturón de seguridad',nn:true},{t:'Extintor vigente',nn:true},
+      {t:'Neumáticos con presión correcta',nn:true},
+    ]},
+    {n:'Documentación',it:[
+      {t:'SOAT vigente',nn:true},{t:'Revisión técnica vigente',nn:true},
+      {t:'Licencia vigente',nn:true},
+    ]},
+    {n:'Prueba Funcional',it:[
+      {t:'Arranque correcto',nn:true},{t:'Frenos: prueba dinámica',nn:true},
+      {t:'Sin vibraciones anormales',nn:true},
+    ]},
+  ]},
+];
+
+/* ════════════════════════════════════════════════════
+   ESTADO GLOBAL
+════════════════════════════════════════════════════ */
+let db=null, rol=null, usuario={};
+let eqSel=null, chkEstado={}, chkObs={};
+let todosChk=[], todosChkFilt=[];
+let todosMant=[], todosLlan=[], todosRep=[], todosRepFilt=[];
+let charts={};
+
+/* ════════════════════════════════════════════════════
+   CONFIG / FIREBASE
+════════════════════════════════════════════════════ */
+function getCfg(){try{return JSON.parse(localStorage.getItem('ecosem_v3')||'{}')}catch{return{}}}
+function initFB(c){
+  if(!c||!c.apiKey)return false;
+  try{
+    if(!firebase.apps.length)
+      firebase.initializeApp({apiKey:c.apiKey,authDomain:`${c.projectId}.firebaseapp.com`,projectId:c.projectId});
+    db=firebase.firestore();return true;
+  }catch(e){console.error(e);return false}
+}
+function saveCfg(){
+  const k=document.getElementById('cfg-k').value.trim();
+  const p=document.getElementById('cfg-p').value.trim();
+  const a=document.getElementById('cfg-a').value.trim();
+  if(!k||!p){toast('⚠️ Ingresa API Key y Project ID');return}
+  localStorage.setItem('ecosem_v3',JSON.stringify({apiKey:k,projectId:p,adminPass:a}));
+  toast('✅ Configuración guardada');initFB({apiKey:k,projectId:p});
+}
+function saveCfgApp(){
+  const k=document.getElementById('ci-k').value.trim();
+  const p=document.getElementById('ci-p').value.trim();
+  const a=document.getElementById('ci-a').value.trim();
+  if(!k||!p){toast('⚠️ Completa API Key y Project ID');return}
+  localStorage.setItem('ecosem_v3',JSON.stringify({apiKey:k,projectId:p,adminPass:a}));
+  document.getElementById('ci-proj').textContent=p;
+  toast('✅ Config actualizada');initFB({apiKey:k,projectId:p});
+}
+
+/* ════════════════════════════════════════════════════
+   LOGIN
+════════════════════════════════════════════════════ */
+function lTab(t){
+  document.querySelectorAll('.ltab').forEach((b,i)=>
+    b.classList.toggle('on',['tec','admin','cfg'][i]===t));
+  document.querySelectorAll('.lsec').forEach(s=>s.classList.remove('on'));
+  document.getElementById('lsec-'+t).classList.add('on');
+}
+function entrarTec(){
+  const nom=document.getElementById('l-nom').value.trim();
+  const cargo=document.getElementById('l-cargo').value;
+  const area=document.getElementById('l-area').value;
+  if(!nom){toast('⚠️ Ingresa tu nombre');return}
+  if(!cargo){toast('⚠️ Selecciona el cargo');return}
+  const c=getCfg();
+  if(!c.apiKey){toast('⚠️ Configura Firebase primero');lTab('cfg');return}
+  if(!initFB(c)){toast('❌ Error conectando Firebase');return}
+  usuario={nombre:nom,cargo,area};rol='tec';lanzar();
+}
+function entrarAdmin(){
+  const pass=document.getElementById('l-pass').value.trim();
+  const c=getCfg();
+  if(!c.adminPass){toast('⚠️ Configura la clave admin primero');lTab('cfg');return}
+  if(pass!==c.adminPass){toast('❌ Clave incorrecta');return}
+  if(!initFB(c)){toast('❌ Error conectando Firebase');return}
+  usuario={nombre:'Administrador',cargo:'Admin',area:'Administración'};rol='admin';lanzar();
+}
+function lanzar(){
+  document.getElementById('s-login').classList.remove('on');
+  document.getElementById('s-app').classList.add('on');
+  document.getElementById('bnav').style.display='flex';
+  const c=getCfg();
+  const now=new Date();
+  document.getElementById('c-fecha').value=now.toISOString().slice(0,10);
+  document.getElementById('c-hora').value=now.toTimeString().slice(0,5);
+  document.getElementById('m-fecha').value=now.toISOString().slice(0,10);
+  document.getElementById('ll-fecha').value=now.toISOString().slice(0,10);
+  document.getElementById('dw-date').textContent=now.toLocaleDateString('es-PE',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  document.getElementById('ab-nom').textContent=usuario.nombre;
+  document.getElementById('ab-sub').textContent=usuario.cargo+' · '+usuario.area;
+  document.getElementById('ci-rol').textContent=rol==='admin'?'🛡️ Administrador':'🔧 Técnico';
+  document.getElementById('ci-nom').textContent=usuario.nombre;
+  document.getElementById('ci-proj').textContent=c.projectId||'—';
+  document.getElementById('ci-k').value=c.apiKey||'';
+  document.getElementById('ci-p').value=c.projectId||'';
+  document.getElementById('ci-a').value=c.adminPass||'';
+  if(rol==='admin'){
+    document.getElementById('mt-admin').style.display='flex';
+    document.getElementById('af-fecha').value=now.toISOString().slice(0,10);
+  }
+  buildEqGrid();
+  cargarTodo();
+  showMod('dash');
+}
+function logout(){
+  if(!confirm('¿Cerrar sesión?'))return;
+  rol=null;usuario={};eqSel=null;chkEstado={};
+  document.getElementById('s-app').classList.remove('on');
+  document.getElementById('s-login').classList.add('on');
+  document.getElementById('bnav').style.display='none';
+  document.getElementById('l-nom').value='';
+  document.getElementById('l-pass').value='';
+  document.getElementById('mt-admin').style.display='none';
+}
+
+/* ════════════════════════════════════════════════════
+   MÓDULOS / NAVEGACIÓN
+════════════════════════════════════════════════════ */
+const MODS=['dash','chk','mant','llan','rep','admin','inst','cfg'];
+function showMod(id){
+  MODS.forEach(m=>{
+    const el=document.getElementById('mod-'+m);
+    if(el) el.style.display=m===id?'block':'none';
+    const mt=document.getElementById('mt-'+m);
+    if(mt) mt.classList.toggle('on',m===id);
+    const bn=document.getElementById('bn-'+m);
+    if(bn) bn.classList.toggle('on',m===id);
+  });
+  // Lazy load
+  if(id==='mant') cargarMant();
+  if(id==='llan') cargarLlan();
+  if(id==='rep') cargarRep();
+  if(id==='admin') cargarAdmin();
+  if(id==='dash') cargarDashboard();
+}
+
+/* ════════════════════════════════════════════════════
+   CARGAR TODO (inicial)
+════════════════════════════════════════════════════ */
+function cargarTodo(){
+  cargarDashboard();
+}
+
+/* ════════════════════════════════════════════════════
+   DASHBOARD + KPIs
+════════════════════════════════════════════════════ */
+async function cargarDashboard(){
+  if(!db) return;
+  try{
+    const hoy=new Date().toISOString().slice(0,10);
+    const mes=new Date(); mes.setDate(1);
+
+    // Checklist hoy
+    const snapChk=await db.collection('ecosem_checklist').orderBy('timestamp','desc').limit(200).get();
+    todosChk=snapChk.docs.map(d=>({id:d.id,...d.data()}));
+    const chkHoy=todosChk.filter(r=>r.fecha===hoy).length;
+    const obsM=todosChk.reduce((s,r)=>s+(r.totalM||0),0);
+    const pctProm=todosChk.length?Math.round(todosChk.reduce((s,r)=>s+(r.pctBueno||0),0)/todosChk.length):0;
+
+    // Mantenimiento este mes
+    const snapMant=await db.collection('ecosem_mantenimiento').get();
+    todosMant=snapMant.docs.map(d=>({id:d.id,...d.data()}));
+    const mantMes=todosMant.filter(r=>r.fecha>=mes.toISOString().slice(0,10)).length;
+
+    // Llantas alerta
+    const snapLlan=await db.collection('ecosem_llantas').get();
+    todosLlan=snapLlan.docs.map(d=>({id:d.id,...d.data()}));
+    const llanAlerta=todosLlan.filter(r=>r.estado==='Alerta'||r.estado==='Por cambiar').length;
+
+    // Repuestos stock bajo
+    const snapRep=await db.collection('ecosem_repuestos').get();
+    todosRep=snapRep.docs.map(d=>({id:d.id,...d.data()}));
+    todosRepFilt=[...todosRep];
+    const repBajo=todosRep.filter(r=>(parseInt(r.stock)||0)<=(parseInt(r.stockMin)||0)).length;
+    const repAgot=todosRep.filter(r=>(parseInt(r.stock)||0)===0).length;
+
+    // Actualizar KPIs
+    setTxt('kpi-chk',chkHoy);
+    setTxt('kpi-chk-t','inspecciones hoy');
+    setTxt('kpi-obs',obsM);
+    setTxt('kpi-mant',mantMes);
+    setTxt('kpi-llan',llanAlerta);
+    setTxt('kpi-rep',repBajo);
+    setTxt('kpi-pct',pctProm+'%');
+    setTxt('kpi-pct-t',todosChk.length+' checklist total');
+    // Repuestos KPIs
+    setTxt('rp-total',todosRep.length);
+    setTxt('rp-bajo',repBajo);
+    setTxt('rp-agot',repAgot);
+    // Llantas KPIs
+    const llOk=todosLlan.filter(r=>r.estado==='Operativa'||r.estado==='Reencauchada').length;
+    const llAlerta=todosLlan.filter(r=>r.estado==='Alerta').length;
+    const llCambio=todosLlan.filter(r=>r.estado==='Por cambiar').length;
+    setTxt('ll-ok',llOk);setTxt('ll-alerta',llAlerta);setTxt('ll-cambio',llCambio);
+    // Admin KPIs
+    setTxt('adm-tot',todosChk.length);
+    setTxt('adm-hoy',chkHoy);
+    setTxt('adm-avg',pctProm+'%');
+    setTxt('adm-crit',obsM);
+
+    dibujarGraficos();
+    renderAlertas(obsM,llanAlerta,repBajo);
+
+  }catch(e){console.error(e);toast('⚠️ Error cargando dashboard: '+e.message)}
+}
+
+function renderAlertas(obsM,llanAlerta,repBajo){
+  const cont=document.getElementById('dash-alerts');
+  const alertas=[];
+  if(obsM>0) alertas.push({ico:'🔴',t:'Ítems en Mal Estado',d:`${obsM} ítems M en checklist recientes`,c:'red'});
+  if(llanAlerta>0) alertas.push({ico:'🔵',t:'Llantas con Alerta',d:`${llanAlerta} llantas necesitan atención`,c:'blue'});
+  if(repBajo>0) alertas.push({ico:'📦',t:'Repuestos con Stock Bajo',d:`${repBajo} repuestos bajo el mínimo`,c:'amber'});
+  if(!alertas.length){
+    cont.innerHTML='<div class="card"><div class="card-body" style="text-align:center;color:var(--green);padding:20px"><div style="font-size:32px;margin-bottom:8px">✅</div><strong>Sin alertas activas</strong></div></div>';
+    return;
+  }
+  cont.innerHTML=alertas.map(a=>`
+    <div class="alert-card">
+      <div class="alert-icon">${a.ico}</div>
+      <div class="alert-text">
+        <h4>${a.t}</h4><p>${a.d}</p>
+      </div>
+    </div>`).join('');
+}
+
+function dibujarGraficos(){
+  // Gráfico por equipo
+  const eq_counts={};
+  EQUIPOS_CHK.forEach(e=>eq_counts[e.n]=0);
+  todosChk.forEach(r=>{if(r.tipoEquipo) eq_counts[r.tipoEquipo]=(eq_counts[r.tipoEquipo]||0)+1});
+  const eqLabels=Object.keys(eq_counts);
+  const eqData=eqLabels.map(l=>eq_counts[l]);
+  dibujarBar('chart-eq',eqLabels,eqData,'Inspecciones por Equipo','F5A623');
+
+  // Gráfico semanal (últimos 7 días)
+  const dias=[];const cuentas=[];
+  for(let i=6;i>=0;i--){
+    const d=new Date();d.setDate(d.getDate()-i);
+    const ds=d.toISOString().slice(0,10);
+    dias.push(d.toLocaleDateString('es-PE',{weekday:'short',day:'numeric'}));
+    cuentas.push(todosChk.filter(r=>r.fecha===ds).length);
+  }
+  dibujarBar('chart-week',dias,cuentas,'Checklist por Día','22D3A0');
+}
+
+function dibujarBar(canvasId,labels,data,title,color){
+  const ctx=document.getElementById(canvasId);
+  if(!ctx) return;
+  if(charts[canvasId]) charts[canvasId].destroy();
+  charts[canvasId]=new Chart(ctx,{
+    type:'bar',
+    data:{
+      labels,
+      datasets:[{
+        label:title,data,
+        backgroundColor:`#${color}30`,
+        borderColor:`#${color}`,
+        borderWidth:2,borderRadius:6,
+      }]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:true,
+      plugins:{legend:{display:false},
+        tooltip:{callbacks:{title:i=>i[0].label,label:i=>` ${i.raw} registros`}}},
+      scales:{
+        x:{grid:{color:'rgba(42,63,107,.3)'},ticks:{color:'#7a94c0',font:{size:10}}},
+        y:{grid:{color:'rgba(42,63,107,.3)'},ticks:{color:'#7a94c0',font:{size:10}},beginAtZero:true},
+      }
+    }
+  });
+}
+
+/* ════════════════════════════════════════════════════
+   CHECKLIST
+════════════════════════════════════════════════════ */
+function buildEqGrid(){
+  const g=document.getElementById('eq-grid');
+  g.innerHTML='';
+  EQUIPOS_CHK.forEach(eq=>{
+    const btn=document.createElement('button');
+    btn.className='eq-btn'+(eqSel===eq.id?' sel':'');
+    btn.id='eqbtn_'+eq.id;btn.type='button';
+    btn.style.cssText='background:var(--card);border:1.5px solid var(--border);border-radius:var(--r2);padding:14px 10px 12px;display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;transition:all .18s;min-height:80px;justify-content:center;-webkit-user-select:none;user-select:none;';
+    btn.innerHTML=`<span style="font-size:26px;line-height:1">${eq.ic}</span>
+      <span style="font-size:11px;font-weight:800;color:var(--text2);line-height:1.2">${eq.n}</span>
+      <span style="font-size:10px;color:var(--muted2)" id="eqc_${eq.id}">0/${eq.secs.reduce((s,sec)=>s+sec.it.length,0)}</span>`;
+    btn.addEventListener('click',()=>selEq(eq.id));
+    g.appendChild(btn);
+  });
+}
+
+function selEq(eqId){
+  if(eqSel){
+    const old=document.getElementById('eqbtn_'+eqSel);
+    if(old){old.style.borderColor='var(--border)';old.style.background='var(--card)'}
+  }
+  document.querySelectorAll('[id^="chkcard_"]').forEach(c=>c.style.display='none');
+  eqSel=eqId;
+  const btn=document.getElementById('eqbtn_'+eqId);
+  if(btn){btn.style.borderColor='var(--gold)';btn.style.background='rgba(245,166,35,.08)'}
+  renderChkCard(eqId);
+}
+
+function renderChkCard(eqId){
+  const eq=EQUIPOS_CHK.find(e=>e.id===eqId);
+  const cont=document.getElementById('chk-container');
+  let card=document.getElementById('chkcard_'+eqId);
+  if(!card){
+    card=document.createElement('div');card.className='card';
+    card.id='chkcard_'+eqId;
+    let h=`<div class="card-head">
+      <h3>${eq.ic} ${eq.n}</h3>
+      <span style="font-size:11px;color:var(--muted2)" id="cpi_${eqId}">0/${eq.secs.reduce((s,sec)=>s+sec.it.length,0)}</span>
+    </div>
+    <div class="bmna-hdr">
+      <span class="bh-lbl">Ítem de Inspección</span>
+      <div class="bmna-cols">
+        <span class="bcol bcol-b">B</span><span class="bcol bcol-m">M</span><span class="bcol bcol-na">NA</span>
+      </div>
+    </div>`;
+    eq.secs.forEach((sec,si)=>{
+      h+=`<div style="padding:7px 14px 5px;font-size:10px;font-weight:800;color:var(--gold);text-transform:uppercase;letter-spacing:.7px;background:rgba(10,15,30,.4);border-bottom:1px solid var(--border)">${sec.n}</div>`;
+      sec.it.forEach((item,ii)=>{
+        const key=`${eqId}_${si}_${ii}`;
+        const v=chkEstado[key]||null;
+        h+=`<div class="chk-row" id="cr_${key}">
+          <div class="chk-lbl">${item.t}${item.nn?'<span class="chk-nn">NN</span>':''}</div>
+          <div class="bmna-grp">
+            <button class="bx B${v==='B'?' on':''}" type="button" onclick="setChk('${eqId}',${si},${ii},'B')">B</button>
+            <button class="bx M${v==='M'?' on':''}" type="button" onclick="setChk('${eqId}',${si},${ii},'M')">M</button>
+            <button class="bx NA${v==='NA'?' on':''}" type="button" onclick="setChk('${eqId}',${si},${ii},'NA')">NA</button>
+          </div>
+        </div>`;
+      });
+      h+=`<div style="padding:10px 14px;background:rgba(10,15,30,.3);border-top:1px solid var(--border)">
+        <label style="font-size:10px;font-weight:700;color:var(--muted2);text-transform:uppercase;display:block;margin-bottom:4px">📝 Obs. — ${sec.n}</label>
+        <textarea id="cobs_${eqId}_${si}" rows="2" style="width:100%;background:var(--surf2);border:1.5px solid var(--border);border-radius:9px;padding:9px 11px;font-size:13px;color:var(--text);resize:none;outline:none"
+          placeholder="Observaciones...">${chkObs[`${eqId}_${si}`]||''}</textarea>
+      </div>`;
+    });
+    card.innerHTML=h;
+    cont.appendChild(card);
+    eq.secs.forEach((_,si)=>{
+      const ta=card.querySelector(`#cobs_${eqId}_${si}`);
+      if(ta) ta.addEventListener('input',e=>{chkObs[`${eqId}_${si}`]=e.target.value});
+    });
+  }
+  card.style.display='block';
+  actuChkProg(eqId);
+}
+
+function setChk(eqId,si,ii,val){
+  const key=`${eqId}_${si}_${ii}`;
+  chkEstado[key]=chkEstado[key]===val?null:val;
+  const v=chkEstado[key]||null;
+  const row=document.getElementById('cr_'+key);
+  if(row) row.querySelectorAll('.bx').forEach(b=>b.classList.toggle('on',b.classList.contains(val)&&!!v));
+  actuChkProg(eqId);actuChkGlobal();
+  document.getElementById('eqc_'+eqId).textContent=`${Object.keys(chkEstado).filter(k=>k.startsWith(eqId+'_')&&chkEstado[k]).length}/${EQUIPOS_CHK.find(e=>e.id===eqId).secs.reduce((s,sec)=>s+sec.it.length,0)}`;
+}
+
+function actuChkProg(eqId){
+  const eq=EQUIPOS_CHK.find(e=>e.id===eqId);
+  let total=0,done=0;
+  eq.secs.forEach((sec,si)=>sec.it.forEach((_,ii)=>{total++;if(chkEstado[`${eqId}_${si}_${ii}`])done++;}));
+  const el=document.getElementById('cpi_'+eqId);
+  if(el) el.textContent=`${done}/${total}`;
+}
+
+function actuChkGlobal(){
+  let b=0,m=0,na=0,pend=0,total=0;
+  EQUIPOS_CHK.forEach(eq=>eq.secs.forEach((sec,si)=>sec.it.forEach((_,ii)=>{
+    total++;const v=chkEstado[`${eq.id}_${si}_${ii}`];
+    if(v==='B')b++;else if(v==='M')m++;else if(v==='NA')na++;else pend++;
+  })));
+  setTxt('rc-b',b);setTxt('rc-m',m);setTxt('rc-na',na);setTxt('rc-pend',pend);
+  const pct=total?Math.round((b+na)/total*100):0;
+  const el=document.getElementById('rc-prog');if(el)el.style.width=pct+'%';
+}
+
+async function enviarChecklist(){
+  if(!db){toast('❌ Firebase no conectado');return}
+  if(!eqSel){toast('⚠️ Selecciona el tipo de equipo');return}
+  const cod=document.getElementById('c-cod').value.trim();
+  if(!cod){toast('⚠️ Ingresa el código/placa del equipo');return}
+  const eq=EQUIPOS_CHK.find(e=>e.id===eqSel);
+  const payload={
+    tecnico:usuario.nombre,cargo:usuario.cargo,area:usuario.area,
+    tipoEquipo:eq.n,tipoEquipoId:eq.id,
+    codigoEquipo:cod,marcaModelo:document.getElementById('c-mod').value.trim(),
+    fecha:document.getElementById('c-fecha').value,
+    hora:document.getElementById('c-hora').value,
+    horometro:document.getElementById('c-km').value.trim(),
+    tipoInspeccion:document.getElementById('c-tipo').value,
+    obsFinal:document.getElementById('c-obs').value.trim(),
+    firmaTecnico:document.getElementById('c-firma').value.trim(),
+    firmaSupervisor:document.getElementById('c-fsup').value.trim(),
+    timestamp:firebase.firestore.FieldValue.serverTimestamp(),
+    secciones:{},totalB:0,totalM:0,totalNA:0,totalPend:0,totalItems:0,
+  };
+  eq.secs.forEach((sec,si)=>{
+    const sd={nombre:sec.n,obs:chkObs[`${eq.id}_${si}`]||'',items:[]};
+    sec.it.forEach((item,ii)=>{
+      const v=chkEstado[`${eq.id}_${si}_${ii}`]||'PENDIENTE';
+      sd.items.push({texto:item.t,nn:!!item.nn,valor:v});
+      payload.totalItems++;
+      if(v==='B')payload.totalB++;else if(v==='M')payload.totalM++;
+      else if(v==='NA')payload.totalNA++;else payload.totalPend++;
+    });
+    payload.secciones[si]=sd;
+  });
+  payload.pctBueno=payload.totalItems?Math.round(payload.totalB/payload.totalItems*100):0;
+  const btn=document.getElementById('btn-send-chk');
+  const st=document.getElementById('chk-st');
+  btn.disabled=true;btn.textContent='⏳ Enviando...';st.textContent='Guardando en la nube...';
+  try{
+    await db.collection('ecosem_checklist').add(payload);
+    btn.textContent='✅ ¡Enviado!';st.textContent='Inspección guardada en la nube';
+    toast('✅ Inspección enviada correctamente');
+    setTimeout(()=>{btn.disabled=false;btn.textContent='☁️ Enviar Inspección a la Nube';st.textContent='';},5000);
+  }catch(e){
+    btn.disabled=false;btn.textContent='☁️ Enviar Inspección a la Nube';
+    st.textContent='❌ Error: '+e.message;toast('❌ Error al enviar');
+  }
+}
+
+/* ════════════════════════════════════════════════════
+   MANTENIMIENTO
+════════════════════════════════════════════════════ */
+function abrirModalMant(){abrirModal('m-mant')}
+async function guardarMant(){
+  if(!db){toast('❌ Firebase no conectado');return}
+  const eq=document.getElementById('m-eq').value.trim();
+  if(!eq){toast('⚠️ Ingresa el equipo');return}
+  try{
+    await db.collection('ecosem_mantenimiento').add({
+      equipo:eq,fecha:document.getElementById('m-fecha').value,
+      tipo:document.getElementById('m-tipo').value,
+      trabajos:document.getElementById('m-trabajos').value.trim(),
+      mecanico:document.getElementById('m-mec').value.trim(),
+      horometro:document.getElementById('m-km').value.trim(),
+      proxMantenimiento:document.getElementById('m-prox').value.trim(),
+      costo:parseFloat(document.getElementById('m-costo').value)||0,
+      repuestosUsados:document.getElementById('m-repuestos').value.trim(),
+      observaciones:document.getElementById('m-obs').value.trim(),
+      estado:document.getElementById('m-estado').value,
+      tecnico:usuario.nombre,
+      timestamp:firebase.firestore.FieldValue.serverTimestamp(),
+    });
+    cerrarModal('m-mant');toast('✅ Mantenimiento guardado');cargarMant();
+  }catch(e){toast('❌ Error: '+e.message)}
+}
+async function cargarMant(){
+  if(!db)return;
+  const lista=document.getElementById('lista-mant');
+  lista.innerHTML='<div class="empty"><div class="spin"></div><p>Cargando...</p></div>';
+  try{
+    const snap=await db.collection('ecosem_mantenimiento').orderBy('timestamp','desc').limit(100).get();
+    todosMant=snap.docs.map(d=>({id:d.id,...d.data()}));
+    if(!todosMant.length){lista.innerHTML='<div class="empty"><div class="ei">🔧</div><h3>Sin registros</h3><p>Presiona + para agregar</p></div>';return}
+    lista.innerHTML=todosMant.map(r=>`
+      <div class="list-item">
+        <div class="li-head">
+          <div class="li-icon">🔧</div>
+          <div class="li-info">
+            <h4>${r.equipo||'—'}</h4>
+            <p>${r.tipo||'—'} · ${r.fecha||'—'} · ${r.mecanico||'—'}</p>
+            <p style="margin-top:3px;color:var(--muted2)">${r.trabajos?r.trabajos.slice(0,60)+'...':''}</p>
+          </div>
+          <div class="li-right">
+            <span class="sbadge ${r.estado==='Completado'?'sb-green':r.estado==='Pendiente'?'sb-red':'sb-amber'}">${r.estado||'—'}</span>
+            ${r.costo?`<span style="font-size:12px;font-weight:700;color:var(--gold)">S/. ${r.costo}</span>`:''}
+          </div>
+        </div>
+        ${r.observaciones?`<div style="padding:8px 14px 10px;font-size:12px;color:var(--muted3);font-style:italic">📝 ${r.observaciones}</div>`:''}
+      </div>`).join('');
+  }catch(e){lista.innerHTML=`<div class="empty"><div class="ei">⚠️</div><h3>Error</h3><p>${e.message}</p></div>`}
+}
+
+/* ════════════════════════════════════════════════════
+   LLANTAS
+════════════════════════════════════════════════════ */
+function abrirModalLlan(){abrirModal('m-llan')}
+async function guardarLlan(){
+  if(!db){toast('❌ Firebase no conectado');return}
+  const eq=document.getElementById('ll-eq').value.trim();
+  if(!eq){toast('⚠️ Ingresa el equipo');return}
+  try{
+    await db.collection('ecosem_llantas').add({
+      equipo:eq,posicion:document.getElementById('ll-pos').value,
+      marca:document.getElementById('ll-marca').value.trim(),
+      medida:document.getElementById('ll-med').value.trim(),
+      serie:document.getElementById('ll-serie').value.trim(),
+      fechaInstalacion:document.getElementById('ll-fecha').value,
+      kmInstalacion:parseInt(document.getElementById('ll-km-ini').value)||0,
+      kmActual:parseInt(document.getElementById('ll-km-act').value)||0,
+      profLabrado:parseFloat(document.getElementById('ll-prof').value)||0,
+      presionPSI:parseFloat(document.getElementById('ll-psi').value)||0,
+      estado:document.getElementById('ll-est').value,
+      observaciones:document.getElementById('ll-obs').value.trim(),
+      tecnico:usuario.nombre,
+      timestamp:firebase.firestore.FieldValue.serverTimestamp(),
+    });
+    cerrarModal('m-llan');toast('✅ Llanta registrada');cargarLlan();
+  }catch(e){toast('❌ Error: '+e.message)}
+}
+async function cargarLlan(){
+  if(!db)return;
+  const lista=document.getElementById('lista-llan');
+  lista.innerHTML='<div class="empty"><div class="spin"></div><p>Cargando...</p></div>';
+  try{
+    const snap=await db.collection('ecosem_llantas').orderBy('timestamp','desc').limit(200).get();
+    todosLlan=snap.docs.map(d=>({id:d.id,...d.data()}));
+    // Actualizar KPIs
+    const llOk=todosLlan.filter(r=>r.estado==='Operativa'||r.estado==='Reencauchada').length;
+    const llAlerta=todosLlan.filter(r=>r.estado==='Alerta').length;
+    const llCambio=todosLlan.filter(r=>r.estado==='Por cambiar').length;
+    setTxt('ll-ok',llOk);setTxt('ll-alerta',llAlerta);setTxt('ll-cambio',llCambio);
+    if(!todosLlan.length){lista.innerHTML='<div class="empty"><div class="ei">🔵</div><h3>Sin llantas</h3><p>Presiona + para agregar</p></div>';return}
+    const estColor={Operativa:'sb-green',Alerta:'sb-amber','Por cambiar':'sb-red',Reencauchada:'sb-blue'};
+    lista.innerHTML=todosLlan.map(r=>`
+      <div class="list-item" style="border-left:3px solid ${r.estado==='Por cambiar'?'var(--red)':r.estado==='Alerta'?'var(--gold)':'var(--green)'}">
+        <div class="li-head">
+          <div class="li-icon">🔵</div>
+          <div class="li-info">
+            <h4>${r.equipo||'—'} — ${r.posicion||'—'}</h4>
+            <p>${r.marca||'—'} ${r.medida||''} · Prof: ${r.profLabrado||'—'}mm · ${r.presionPSI||'—'} PSI</p>
+            <p style="margin-top:3px;color:var(--muted2)">Inst: ${r.fechaInstalacion||'—'} · KM: ${r.kmActual||0}</p>
+          </div>
+          <div class="li-right">
+            <span class="sbadge ${estColor[r.estado]||'sb-blue'}">${r.estado||'—'}</span>
+            <span style="font-size:10px;color:var(--muted2)">${r.serie||''}</span>
+          </div>
+        </div>
+      </div>`).join('');
+  }catch(e){lista.innerHTML=`<div class="empty"><div class="ei">⚠️</div><h3>Error</h3><p>${e.message}</p></div>`}
+}
+
+/* ════════════════════════════════════════════════════
+   REPUESTOS
+════════════════════════════════════════════════════ */
+function abrirModalRep(){abrirModal('m-rep')}
+async function guardarRep(){
+  if(!db){toast('❌ Firebase no conectado');return}
+  const nom=document.getElementById('rp-nom').value.trim();
+  if(!nom){toast('⚠️ Ingresa el nombre del repuesto');return}
+  try{
+    const stock=parseInt(document.getElementById('rp-stock').value)||0;
+    const stockMin=parseInt(document.getElementById('rp-min').value)||0;
+    await db.collection('ecosem_repuestos').add({
+      nombre:nom,codigo:document.getElementById('rp-cod').value.trim(),
+      categoria:document.getElementById('rp-cat').value,
+      unidad:document.getElementById('rp-uni').value,
+      stock,stockMin,
+      precio:parseFloat(document.getElementById('rp-precio').value)||0,
+      proveedor:document.getElementById('rp-prov').value.trim(),
+      compatible:document.getElementById('rp-comp').value.trim(),
+      ubicacion:document.getElementById('rp-ubic').value.trim(),
+      alerta:stock<=stockMin,
+      tecnico:usuario.nombre,
+      timestamp:firebase.firestore.FieldValue.serverTimestamp(),
+    });
+    cerrarModal('m-rep');toast('✅ Repuesto guardado');cargarRep();
+  }catch(e){toast('❌ Error: '+e.message)}
+}
+async function cargarRep(){
+  if(!db)return;
+  const lista=document.getElementById('lista-rep');
+  lista.innerHTML='<div class="empty"><div class="spin"></div><p>Cargando...</p></div>';
+  try{
+    const snap=await db.collection('ecosem_repuestos').orderBy('timestamp','desc').limit(300).get();
+    todosRep=snap.docs.map(d=>({id:d.id,...d.data()}));
+    todosRepFilt=[...todosRep];
+    setTxt('rp-total',todosRep.length);
+    setTxt('rp-bajo',todosRep.filter(r=>(parseInt(r.stock)||0)<=(parseInt(r.stockMin)||0)).length);
+    setTxt('rp-agot',todosRep.filter(r=>(parseInt(r.stock)||0)===0).length);
+    renderRepuestos();
+  }catch(e){lista.innerHTML=`<div class="empty"><div class="ei">⚠️</div><h3>Error</h3><p>${e.message}</p></div>`}
+}
+function filtrarRepuestos(){
+  const q=document.getElementById('rep-search').value.toLowerCase();
+  todosRepFilt=todosRep.filter(r=>
+    (r.nombre||'').toLowerCase().includes(q)||
+    (r.codigo||'').toLowerCase().includes(q)||
+    (r.categoria||'').toLowerCase().includes(q)
+  );
+  renderRepuestos();
+}
+function renderRepuestos(){
+  const lista=document.getElementById('lista-rep');
+  if(!todosRepFilt.length){lista.innerHTML='<div class="empty"><div class="ei">📦</div><h3>Sin repuestos</h3><p>Presiona + para agregar</p></div>';return}
+  lista.innerHTML=todosRepFilt.map(r=>{
+    const bajo=(parseInt(r.stock)||0)<=(parseInt(r.stockMin)||0);
+    const agot=(parseInt(r.stock)||0)===0;
+    return `<div class="list-item" style="border-left:3px solid ${agot?'var(--red)':bajo?'var(--gold)':'var(--green)'}">
+      <div class="li-head">
+        <div class="li-icon">📦</div>
+        <div class="li-info">
+          <h4>${r.nombre||'—'}</h4>
+          <p>${r.categoria||'—'} · ${r.codigo||'—'} · ${r.compatible||''}</p>
+          <p style="margin-top:3px;color:var(--muted2)">Ubic: ${r.ubicacion||'—'} · Proveedor: ${r.proveedor||'—'}</p>
+        </div>
+        <div class="li-right">
+          <span class="sbadge ${agot?'sb-red':bajo?'sb-amber':'sb-green'}">${r.stock||0} ${r.unidad||'Und'}</span>
+          <span style="font-size:10px;color:var(--muted2)">Mín: ${r.stockMin||0}</span>
+          ${r.precio?`<span style="font-size:11px;color:var(--gold);font-weight:700">S/. ${r.precio}</span>`:''}
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+/* ════════════════════════════════════════════════════
+   ADMIN
+════════════════════════════════════════════════════ */
+async function cargarAdmin(){
+  if(!db||rol!=='admin')return;
+  const lista=document.getElementById('lista-admin');
+  lista.innerHTML='<div class="empty"><div class="spin"></div><p>Cargando registros...</p></div>';
+  try{
+    const snap=await db.collection('ecosem_checklist').orderBy('timestamp','desc').limit(300).get();
+    todosChk=snap.docs.map(d=>({id:d.id,...d.data()}));
+    // Poblar filtro equipo
+    const sel=document.getElementById('af-eq');
+    const eqs=[...new Set(todosChk.map(r=>r.tipoEquipo).filter(Boolean))];
+    sel.innerHTML='<option value="">Todos</option>'+eqs.map(e=>`<option value="${e}">${e}</option>`).join('');
+    filtrarAdmin();
+    actualizarKpisAdmin();
+  }catch(e){lista.innerHTML=`<div class="empty"><div class="ei">⚠️</div><h3>${e.message}</h3></div>`}
+}
+function actualizarKpisAdmin(){
+  const hoy=new Date().toISOString().slice(0,10);
+  setTxt('adm-tot',todosChk.length);
+  setTxt('adm-hoy',todosChk.filter(r=>r.fecha===hoy).length);
+  const avg=todosChk.length?Math.round(todosChk.reduce((s,r)=>s+(r.pctBueno||0),0)/todosChk.length):0;
+  setTxt('adm-avg',avg+'%');
+  setTxt('adm-crit',todosChk.reduce((s,r)=>s+(r.totalM||0),0));
+}
+function filtrarAdmin(){
+  const fecha=document.getElementById('af-fecha')?.value;
+  const eq=document.getElementById('af-eq')?.value;
+  todosChkFilt=todosChk.filter(r=>{
+    if(fecha&&r.fecha!==fecha)return false;
+    if(eq&&r.tipoEquipo!==eq)return false;
+    return true;
+  });
+  renderAdmin();
+}
+function renderAdmin(){
+  const lista=document.getElementById('lista-admin');
+  if(!todosChkFilt.length){lista.innerHTML='<div class="empty"><div class="ei">📋</div><h3>Sin registros</h3></div>';return}
+  lista.innerHTML=todosChkFilt.map(r=>{
+    const pct=r.pctBueno||0;
+    const eq=EQUIPOS_CHK.find(e=>e.id===r.tipoEquipoId)||{ic:'🔧'};
+    const ts=r.timestamp?.toDate?r.timestamp.toDate().toLocaleString('es-PE',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}):r.fecha;
+    return `<div class="rec ${pct>=85?'hi':pct<65?'lo':''}">
+      <div class="rec-head">
+        <div class="rec-ico">${eq.ic||'🔧'}</div>
+        <div class="rec-info">
+          <h4>${r.tipoEquipo||'—'} · ${r.codigoEquipo||'—'}</h4>
+          <div class="rm">${r.tecnico||'—'} · ${r.tipoInspeccion||''} · ${ts}</div>
+          ${r.obsFinal?`<div class="ro">🔴 ${r.obsFinal.slice(0,60)}...</div>`:''}
+        </div>
+        <div class="rec-right">
+          <span class="tag tag-b">B:${r.totalB||0}</span>
+          <span class="tag tag-m">M:${r.totalM||0}</span>
+          <span class="tag tag-pend">${pct}%</span>
+        </div>
+      </div>
+      <button class="expand-btn" onclick="toggleExp(this,'exp_${r.id}')">Ver detalle ▼</button>
+      <div class="expand-body" id="exp_${r.id}">${buildDetAdmin(r)}</div>
+    </div>`;
+  }).join('');
+}
+function buildDetAdmin(r){
+  if(!r.secciones)return'<p style="padding:12px;font-size:12px;color:var(--muted2)">Sin detalle</p>';
+  let h='<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Sección</th><th>Ítem</th><th>Estado</th></tr></thead><tbody>';
+  Object.values(r.secciones).forEach(sec=>{
+    sec.items.forEach(it=>{
+      const c=it.valor==='B'?'green':it.valor==='M'?'red':it.valor==='NA'?'na':'pend';
+      h+=`<tr><td style="color:var(--muted2)">${sec.nombre}</td><td>${it.texto}</td>
+        <td><span class="tag tag-${c}" style="font-size:10px">${it.valor}</span></td></tr>`;
+    });
+  });
+  h+='</tbody></table></div>';
+  return h;
+}
+function toggleExp(btn,id){
+  const d=document.getElementById(id);
+  const o=d.classList.toggle('open');
+  btn.textContent=o?'Ocultar ▲':'Ver detalle ▼';
+}
+
+/* ════════════════════════════════════════════════════
+   EXCEL EXPORT (4 hojas)
+════════════════════════════════════════════════════ */
+function exportarExcelAdmin(){
+  const data=todosChkFilt.length?todosChkFilt:todosChk;
+  if(!data.length){toast('⚠️ Sin registros para exportar');return}
+  const wb=XLSX.utils.book_new();
+  // PORTADA
+  const wsP=XLSX.utils.aoa_to_sheet([
+    ['ECOSEM HUARAUCACA S.A.C.'],['SISTEMA DIGITAL DE INSPECCIÓN'],[''],
+    ['Exportado:',new Date().toLocaleString('es-PE')],
+    ['Total registros:',data.length],[''],
+    ['B','Bueno'],['M','Mal Estado'],['NA','No Aplica'],['NN','No Negociable'],
+  ]);
+  wsP['!cols']=[{wch:28},{wch:40}];
+  XLSX.utils.book_append_sheet(wb,wsP,'PORTADA');
+  // RESUMEN
+  const rH=['ID','Técnico','Tipo Equipo','Código','Fecha','Hora','Tipo Insp.',
+    'B','M','NA','Pend.','Total','% Bueno','Obs. Final'];
+  const rR=data.map(r=>[r.id?.slice(0,14)||'',r.tecnico||'',r.tipoEquipo||'',r.codigoEquipo||'',
+    r.fecha||'',r.hora||'',r.tipoInspeccion||'',r.totalB||0,r.totalM||0,r.totalNA||0,
+    r.totalPend||0,r.totalItems||0,(r.pctBueno||0)+'%',r.obsFinal||'']);
+  const wsR=XLSX.utils.aoa_to_sheet([rH,...rR]);
+  wsR['!cols']=[14,22,18,14,12,8,20,5,5,5,6,6,8,40].map(w=>({wch:w}));
+  hdrXl(wsR,rH.length);
+  XLSX.utils.book_append_sheet(wb,wsR,'RESUMEN');
+  // DETALLE
+  const dH=['ID','Técnico','Equipo','Código','Fecha','Sección','Ítem','NN','Estado'];
+  const dR=[];
+  data.forEach(r=>{if(!r.secciones)return;Object.values(r.secciones).forEach(sec=>{
+    sec.items.forEach(it=>dR.push([r.id?.slice(0,14)||'',r.tecnico||'',r.tipoEquipo||'',
+      r.codigoEquipo||'',r.fecha||'',sec.nombre,it.texto,it.nn?'NN':'',it.valor]));
+  });});
+  const wsD=XLSX.utils.aoa_to_sheet([dH,...dR]);
+  wsD['!cols']=[14,22,18,14,12,22,42,5,10].map(w=>({wch:w}));
+  hdrXl(wsD,dH.length);
+  dR.forEach((row,i)=>{
+    const addr=XLSX.utils.encode_cell({r:i+1,c:8});
+    if(!wsD[addr])return;
+    const bg=row[8]==='B'?'DCFCE7':row[8]==='M'?'FEE2E2':row[8]==='NA'?'F1F5F9':'FEF9C3';
+    const fg=row[8]==='B'?'15803D':row[8]==='M'?'991B1B':row[8]==='NA'?'475569':'92400E';
+    wsD[addr].s={fill:{fgColor:{rgb:bg}},font:{color:{rgb:fg},bold:true}};
+  });
+  XLSX.utils.book_append_sheet(wb,wsD,'DETALLE');
+  // PENDIENTES M
+  const pH=['Técnico','Equipo','Código','Fecha','Sección','Ítem','Estado'];
+  const pR=[];
+  data.forEach(r=>{if(!r.secciones)return;Object.values(r.secciones).forEach(sec=>{
+    sec.items.filter(it=>it.valor==='M'||it.valor==='PENDIENTE').forEach(it=>
+      pR.push([r.tecnico||'',r.tipoEquipo||'',r.codigoEquipo||'',r.fecha||'',sec.nombre,it.texto,it.valor]));
+  });});
+  if(pR.length){
+    const wsPN=XLSX.utils.aoa_to_sheet([pH,...pR]);
+    wsPN['!cols']=[22,18,14,12,22,42,10].map(w=>({wch:w}));
+    hdrXl(wsPN,pH.length,'991B1B');
+    XLSX.utils.book_append_sheet(wb,wsPN,'PENDIENTES');
+  }
+  XLSX.writeFile(wb,`ECOSEM_Inspeccion_${new Date().toISOString().slice(0,10)}.xlsx`);
+  toast('📥 Excel descargado');
+}
+function hdrXl(ws,cols,bg){
+  for(let c=0;c<cols;c++){
+    const addr=XLSX.utils.encode_cell({r:0,c});
+    if(!ws[addr])return;
+    ws[addr].s={fill:{fgColor:{rgb:bg||'0A0F1E'}},font:{color:{rgb:'FFFFFF'},bold:true},
+      alignment:{horizontal:'center',wrapText:true}};
+  }
+}
+
+/* ════════════════════════════════════════════════════
+   EXCEL MANTENIMIENTO / LLANTAS / REPUESTOS
+════════════════════════════════════════════════════ */
+function exportarExcelMant(){
+  if(!todosMant.length){toast('⚠️ Sin mantenimientos');return}
+  const wb=XLSX.utils.book_new();
+  const h=['Equipo','Fecha','Tipo','Trabajos','Mecánico','Horómetro/KM','Próx.Mant.','Costo S/.','Repuestos','Estado','Observaciones'];
+  const r=todosMant.map(m=>[m.equipo||'',m.fecha||'',m.tipo||'',m.trabajos||'',m.mecanico||'',
+    m.horometro||'',m.proxMantenimiento||'',m.costo||0,m.repuestosUsados||'',m.estado||'',m.observaciones||'']);
+  const ws=XLSX.utils.aoa_to_sheet([h,...r]);
+  ws['!cols']=[18,12,14,40,20,14,14,10,30,14,30].map(w=>({wch:w}));
+  hdrXl(ws,h.length,'0F4C81');
+  XLSX.utils.book_append_sheet(wb,ws,'MANTENIMIENTO');
+  XLSX.writeFile(wb,`ECOSEM_Mantenimiento_${new Date().toISOString().slice(0,10)}.xlsx`);
+  toast('📥 Excel Mantenimiento descargado');
+}
+
+/* ════════════════════════════════════════════════════
+   INFORME PPT
+════════════════════════════════════════════════════ */
+async function exportarPPT(){
+  toast('📊 Generando informe PPT...');
+  try{
+    const pptx=new PptxGenJS();
+    pptx.layout='LAYOUT_16x9';
+    pptx.title='ECOSEM — Sistema Digital de Inspección';
+
+    const NAV='0A0F1E',SURF='141E33',CARD='1E2D4A';
+    const GOLD='F5A623',WHITE='FFFFFF',MUTED='7A94C0';
+    const GREEN='22D3A0',RED='F87171',BLUE='60A5FA';
+    const hoy=new Date().toLocaleDateString('es-PE',{day:'numeric',month:'long',year:'numeric'});
+    const chkData=todosChk.length?todosChk:[];
+    const pctProm=chkData.length?Math.round(chkData.reduce((s,r)=>s+(r.pctBueno||0),0)/chkData.length):0;
+    const totB=chkData.reduce((s,r)=>s+(r.totalB||0),0);
+    const totM=chkData.reduce((s,r)=>s+(r.totalM||0),0);
+    const totNA=chkData.reduce((s,r)=>s+(r.totalNA||0),0);
+
+    const mk=()=>({type:'outer',color:'000000',blur:8,offset:3,angle:135,opacity:0.25});
+
+    // ── SLIDE 1: PORTADA ──
+    let s=pptx.addSlide();
+    s.background={color:NAV};
+    // Fondo decorativo
+    s.addShape(pptx.ShapeType.rect,{x:0,y:0,w:4,h:5.625,fill:{color:SURF},line:{color:SURF}});
+    s.addShape(pptx.ShapeType.rect,{x:3.9,y:0,w:0.08,h:5.625,fill:{color:GOLD},line:{color:GOLD}});
+    // Logo block
+    s.addShape(pptx.ShapeType.rect,{x:0.5,y:0.8,w:2.8,h:1.1,fill:{color:CARD},line:{color:GOLD,width:1},shadow:mk()});
+    s.addText('ECOSEM',{x:0.5,y:0.85,w:2.8,h:0.55,fontSize:28,bold:true,color:GOLD,
+      fontFace:'Arial Black',align:'center',charSpacing:6,margin:0});
+    s.addText('HUARAUCACA S.A.C.',{x:0.5,y:1.38,w:2.8,h:0.35,fontSize:9,color:MUTED,
+      fontFace:'Arial',align:'center',charSpacing:3,margin:0});
+    // Titulo principal
+    s.addText('Sistema Digital de',{x:4.4,y:1.0,w:5.2,h:0.7,fontSize:20,color:MUTED,fontFace:'Arial',margin:0});
+    s.addText('Inspección',{x:4.4,y:1.6,w:5.2,h:1.0,fontSize:44,bold:true,color:WHITE,fontFace:'Arial Black',margin:0});
+    s.addShape(pptx.ShapeType.rect,{x:4.4,y:2.7,w:1.2,h:0.06,fill:{color:GOLD},line:{color:GOLD}});
+    s.addText('GESTIÓN INTEGRAL DE FLOTA Y EQUIPOS',{x:4.4,y:2.85,w:5.2,h:0.4,
+      fontSize:9,color:MUTED,fontFace:'Arial',charSpacing:2,margin:0});
+    // Metadata
+    s.addText(`Informe generado: ${hoy}`,{x:4.4,y:3.6,w:5.2,h:0.35,fontSize:12,color:GOLD,fontFace:'Arial',margin:0});
+    s.addText(`Total registros analizados: ${chkData.length}`,{x:4.4,y:4.0,w:5.2,h:0.35,fontSize:11,color:MUTED,fontFace:'Arial',margin:0});
+    s.addText(`Responsable: ${usuario.nombre} — ${usuario.cargo}`,{x:4.4,y:4.35,w:5.2,h:0.35,fontSize:11,color:MUTED,fontFace:'Arial',margin:0});
+    // Footer
+    s.addShape(pptx.ShapeType.rect,{x:0,y:5.3,w:10,h:0.325,fill:{color:SURF},line:{color:SURF}});
+    s.addText('ECOSEM HUARAUCACA S.A.C. — Transporte de Minerales',{x:0,y:5.3,w:10,h:0.325,
+      fontSize:8,color:MUTED,fontFace:'Arial',align:'center',valign:'middle',margin:0});
+
+    // ── SLIDE 2: KPIs RESUMEN ──
+    s=pptx.addSlide();s.background={color:NAV};
+    s.addShape(pptx.ShapeType.rect,{x:0,y:0,w:10,h:0.9,fill:{color:SURF},line:{color:SURF}});
+    s.addShape(pptx.ShapeType.rect,{x:0,y:0.88,w:10,h:0.04,fill:{color:GOLD},line:{color:GOLD}});
+    s.addText('KPIs DEL SISTEMA',{x:0.4,y:0,w:9,h:0.9,fontSize:22,bold:true,color:WHITE,fontFace:'Arial Black',valign:'middle',charSpacing:4,margin:0});
+    s.addText(hoy,{x:0,y:0,w:9.6,h:0.9,fontSize:10,color:MUTED,fontFace:'Arial',valign:'middle',align:'right',margin:0});
+
+    const kpis=[
+      {v:chkData.length,l:'Total Inspecciones',c:BLUE,ic:'📋'},
+      {v:pctProm+'%',l:'% Aprobados (B)',c:GREEN,ic:'✅'},
+      {v:totB,l:'Ítems BUENO',c:GREEN,ic:'👍'},
+      {v:totM,l:'Ítems MAL ESTADO',c:RED,ic:'⚠️'},
+      {v:todosLlan.filter(r=>r.estado==='Alerta'||r.estado==='Por cambiar').length,l:'Llantas con Alerta',c:GOLD,ic:'🔵'},
+      {v:todosMant.length,l:'Mantenimientos',c:BLUE,ic:'🔧'},
+    ];
+    kpis.forEach((k,i)=>{
+      const col=i%3;const row=Math.floor(i/3);
+      const x=0.3+col*3.22,y=1.1+row*2.0;
+      s.addShape(pptx.ShapeType.rect,{x,y,w:3.0,h:1.7,fill:{color:CARD},line:{color:'2A3F6B',width:0.5},shadow:mk()});
+      s.addShape(pptx.ShapeType.rect,{x,y,w:3.0,h:0.06,fill:{color:k.c},line:{color:k.c}});
+      s.addText(k.ic,{x,y:y+0.15,w:3.0,h:0.5,fontSize:22,align:'center',margin:0});
+      s.addText(String(k.v),{x,y:y+0.6,w:3.0,h:0.65,fontSize:32,bold:true,color:k.c,fontFace:'Arial Black',align:'center',margin:0});
+      s.addText(k.l,{x,y:y+1.2,w:3.0,h:0.4,fontSize:9,color:MUTED,fontFace:'Arial',align:'center',margin:0});
+    });
+
+    // ── SLIDE 3: GRÁFICO POR EQUIPO ──
+    s=pptx.addSlide();s.background={color:NAV};
+    s.addShape(pptx.ShapeType.rect,{x:0,y:0,w:10,h:0.9,fill:{color:SURF},line:{color:SURF}});
+    s.addShape(pptx.ShapeType.rect,{x:0,y:0.88,w:10,h:0.04,fill:{color:GOLD},line:{color:GOLD}});
+    s.addText('INSPECCIONES POR TIPO DE EQUIPO',{x:0.4,y:0,w:9,h:0.9,fontSize:20,bold:true,color:WHITE,fontFace:'Arial Black',valign:'middle',charSpacing:2,margin:0});
+    const eqLabels=EQUIPOS_CHK.map(e=>e.n);
+    const eqVals=EQUIPOS_CHK.map(e=>chkData.filter(r=>r.tipoEquipoId===e.id).length);
+    s.addChart(pptx.ChartType.bar,[{name:'Inspecciones',labels:eqLabels,values:eqVals}],{
+      x:0.3,y:1.0,w:9.4,h:4.3,barDir:'col',
+      chartColors:['F5A623','22D3A0','60A5FA','F87171','A78BFA','FB923C','34D399','818CF8'],
+      chartArea:{fill:{color:CARD}},
+      catAxisLabelColor:MUTED,valAxisLabelColor:MUTED,
+      valGridLine:{color:'2A3F6B',size:0.5},catGridLine:{style:'none'},
+      showValue:true,dataLabelColor:WHITE,showLegend:false,
+    });
+
+    // ── SLIDE 4: ESTADO GENERAL ──
+    s=pptx.addSlide();s.background={color:NAV};
+    s.addShape(pptx.ShapeType.rect,{x:0,y:0,w:10,h:0.9,fill:{color:SURF},line:{color:SURF}});
+    s.addShape(pptx.ShapeType.rect,{x:0,y:0.88,w:10,h:0.04,fill:{color:GOLD},line:{color:GOLD}});
+    s.addText('ESTADO GENERAL DE FLOTA',{x:0.4,y:0,w:9,h:0.9,fontSize:20,bold:true,color:WHITE,fontFace:'Arial Black',valign:'middle',charSpacing:2,margin:0});
+    const totAll=totB+totM+totNA;
+    if(totAll>0){
+      s.addChart(pptx.ChartType.doughnut,[{name:'Estado',
+        labels:['Bueno (B)','Mal Estado (M)','No Aplica (NA)'],
+        values:[totB,totM,totNA]}],{
+        x:0.3,y:1.0,w:4.5,h:4.3,
+        chartColors:[GREEN,RED,MUTED],
+        chartArea:{fill:{color:CARD}},
+        showPercent:true,showLegend:true,legendPos:'b',legendColor:MUTED,
+      });
+    }
+    // Tabla resumen por equipo
+    const tblData=[[
+      {text:'Equipo',options:{fill:{color:'1E2D4A'},color:WHITE,bold:true,align:'center',fontSize:9}},
+      {text:'Inspect.',options:{fill:{color:'1E2D4A'},color:WHITE,bold:true,align:'center',fontSize:9}},
+      {text:'% B',options:{fill:{color:'1E2D4A'},color:WHITE,bold:true,align:'center',fontSize:9}},
+    ]];
+    EQUIPOS_CHK.slice(0,8).forEach(eq=>{
+      const eqChk=chkData.filter(r=>r.tipoEquipoId===eq.id);
+      const pct=eqChk.length?Math.round(eqChk.reduce((s,r)=>s+(r.pctBueno||0),0)/eqChk.length):0;
+      tblData.push([
+        {text:eq.n,options:{color:WHITE,fontSize:9}},
+        {text:String(eqChk.length),options:{color:GOLD,bold:true,align:'center',fontSize:10}},
+        {text:pct+'%',options:{color:pct>=80?GREEN:pct<60?RED:GOLD,bold:true,align:'center',fontSize:10}},
+      ]);
+    });
+    s.addTable(tblData,{x:5.0,y:1.1,w:4.7,h:4.2,
+      border:{pt:0.5,color:'2A3F6B'},
+      fill:{color:CARD},colW:[2.6,1.0,1.1]});
+
+    // ── SLIDE 5: MANTENIMIENTO ──
+    s=pptx.addSlide();s.background={color:NAV};
+    s.addShape(pptx.ShapeType.rect,{x:0,y:0,w:10,h:0.9,fill:{color:SURF},line:{color:SURF}});
+    s.addShape(pptx.ShapeType.rect,{x:0,y:0.88,w:10,h:0.04,fill:{color:GOLD},line:{color:GOLD}});
+    s.addText('CONTROL DE MANTENIMIENTO',{x:0.4,y:0,w:9,h:0.9,fontSize:20,bold:true,color:WHITE,fontFace:'Arial Black',valign:'middle',charSpacing:2,margin:0});
+    const tiposMant={Preventivo:0,Correctivo:0,Predictivo:0,Emergencia:0};
+    todosMant.forEach(m=>{if(tiposMant[m.tipo]!==undefined)tiposMant[m.tipo]++});
+    if(todosMant.length){
+      s.addChart(pptx.ChartType.pie,[{name:'Tipo',labels:Object.keys(tiposMant),values:Object.values(tiposMant)}],{
+        x:0.3,y:1.0,w:4.5,h:3.8,
+        chartColors:[GREEN,'F5A623',BLUE,RED],
+        chartArea:{fill:{color:CARD}},showPercent:true,showLegend:true,legendPos:'b',legendColor:MUTED,
+      });
+    }
+    // Stats mantenimiento
+    const costoTotal=todosMant.reduce((s,m)=>s+(m.costo||0),0);
+    const mantComp=todosMant.filter(m=>m.estado==='Completado').length;
+    const mantPend=todosMant.filter(m=>m.estado==='Pendiente').length;
+    [{v:todosMant.length,l:'Total Mantenimientos',c:BLUE},
+     {v:mantComp,l:'Completados',c:GREEN},
+     {v:mantPend,l:'Pendientes',c:RED},
+     {v:'S/. '+costoTotal.toFixed(0),l:'Costo Total',c:GOLD}
+    ].forEach((k,i)=>{
+      const y=1.1+i*1.1;
+      s.addShape(pptx.ShapeType.rect,{x:5.2,y,w:4.5,h:0.9,fill:{color:CARD},line:{color:'2A3F6B',width:0.5},shadow:mk()});
+      s.addShape(pptx.ShapeType.rect,{x:5.2,y,w:0.06,h:0.9,fill:{color:k.c},line:{color:k.c}});
+      s.addText(String(k.v),{x:5.4,y:y+0.05,w:2,h:0.5,fontSize:24,bold:true,color:k.c,fontFace:'Arial Black',margin:0});
+      s.addText(k.l,{x:5.4,y:y+0.52,w:4.1,h:0.3,fontSize:10,color:MUTED,fontFace:'Arial',margin:0});
+    });
+
+    // ── SLIDE 6: LLANTAS ──
+    s=pptx.addSlide();s.background={color:NAV};
+    s.addShape(pptx.ShapeType.rect,{x:0,y:0,w:10,h:0.9,fill:{color:SURF},line:{color:SURF}});
+    s.addShape(pptx.ShapeType.rect,{x:0,y:0.88,w:10,h:0.04,fill:{color:GOLD},line:{color:GOLD}});
+    s.addText('CONTROL DE LLANTAS',{x:0.4,y:0,w:9,h:0.9,fontSize:20,bold:true,color:WHITE,fontFace:'Arial Black',valign:'middle',charSpacing:2,margin:0});
+    const llEstados={Operativa:0,Alerta:0,'Por cambiar':0,Reencauchada:0};
+    todosLlan.forEach(l=>{if(llEstados[l.estado]!==undefined)llEstados[l.estado]++});
+    if(todosLlan.length){
+      s.addChart(pptx.ChartType.doughnut,[{name:'Estado',labels:Object.keys(llEstados),values:Object.values(llEstados)}],{
+        x:0.3,y:1.0,w:4.5,h:4.2,
+        chartColors:[GREEN,GOLD,RED,BLUE],
+        chartArea:{fill:{color:CARD}},showPercent:true,showLegend:true,legendPos:'b',legendColor:MUTED,
+      });
+    }
+    [{v:todosLlan.length,l:'Total Llantas Registradas',c:BLUE},
+     {v:llEstados.Operativa,l:'Operativas',c:GREEN},
+     {v:llEstados.Alerta,l:'En Alerta',c:GOLD},
+     {v:llEstados['Por cambiar'],l:'Por Cambiar',c:RED},
+    ].forEach((k,i)=>{
+      const y=1.1+i*1.1;
+      s.addShape(pptx.ShapeType.rect,{x:5.2,y,w:4.5,h:0.9,fill:{color:CARD},line:{color:'2A3F6B',width:0.5},shadow:mk()});
+      s.addShape(pptx.ShapeType.rect,{x:5.2,y,w:0.06,h:0.9,fill:{color:k.c},line:{color:k.c}});
+      s.addText(String(k.v),{x:5.4,y:y+0.05,w:2,h:0.5,fontSize:24,bold:true,color:k.c,fontFace:'Arial Black',margin:0});
+      s.addText(k.l,{x:5.4,y:y+0.52,w:4.1,h:0.3,fontSize:10,color:MUTED,fontFace:'Arial',margin:0});
+    });
+
+    // ── SLIDE 7: REPUESTOS ──
+    s=pptx.addSlide();s.background={color:NAV};
+    s.addShape(pptx.ShapeType.rect,{x:0,y:0,w:10,h:0.9,fill:{color:SURF},line:{color:SURF}});
+    s.addShape(pptx.ShapeType.rect,{x:0,y:0.88,w:10,h:0.04,fill:{color:GOLD},line:{color:GOLD}});
+    s.addText('CONTROL DE REPUESTOS',{x:0.4,y:0,w:9,h:0.9,fontSize:20,bold:true,color:WHITE,fontFace:'Arial Black',valign:'middle',charSpacing:2,margin:0});
+    // Categorías de repuestos
+    const catMap={};
+    todosRep.forEach(r=>{catMap[r.categoria||'Otro']=(catMap[r.categoria||'Otro']||0)+1});
+    if(Object.keys(catMap).length>0){
+      s.addChart(pptx.ChartType.bar,[{name:'Repuestos',labels:Object.keys(catMap),values:Object.values(catMap)}],{
+        x:0.3,y:1.0,w:5.8,h:4.2,barDir:'bar',
+        chartColors:['F5A623'],chartArea:{fill:{color:CARD}},
+        catAxisLabelColor:MUTED,valAxisLabelColor:MUTED,
+        valGridLine:{color:'2A3F6B',size:0.5},catGridLine:{style:'none'},
+        showValue:true,dataLabelColor:WHITE,showLegend:false,
+      });
+    }
+    const repBajoList=todosRep.filter(r=>(parseInt(r.stock)||0)<=(parseInt(r.stockMin)||0)).slice(0,6);
+    if(repBajoList.length){
+      s.addText('⚠️ STOCK BAJO',{x:6.4,y:1.0,w:3.4,h:0.35,fontSize:11,bold:true,color:RED,fontFace:'Arial',margin:0});
+      const repTbl=[[
+        {text:'Repuesto',options:{fill:{color:'1E2D4A'},color:WHITE,bold:true,fontSize:8}},
+        {text:'Stock',options:{fill:{color:'1E2D4A'},color:WHITE,bold:true,fontSize:8,align:'center'}},
+        {text:'Mín.',options:{fill:{color:'1E2D4A'},color:WHITE,bold:true,fontSize:8,align:'center'}},
+      ],...repBajoList.map(r=>[
+        {text:(r.nombre||'').slice(0,22),options:{color:WHITE,fontSize:8}},
+        {text:String(r.stock||0),options:{color:RED,bold:true,align:'center',fontSize:9}},
+        {text:String(r.stockMin||0),options:{color:MUTED,align:'center',fontSize:8}},
+      ])];
+      s.addTable(repTbl,{x:6.3,y:1.45,w:3.5,h:repBajoList.length*0.52+0.52,
+        border:{pt:0.5,color:'2A3F6B'},fill:{color:CARD},colW:[2.0,0.75,0.75]});
+    }
+
+    // ── SLIDE 8: ALERTAS Y CONCLUSIONES ──
+    s=pptx.addSlide();s.background={color:NAV};
+    s.addShape(pptx.ShapeType.rect,{x:0,y:0,w:10,h:0.9,fill:{color:SURF},line:{color:SURF}});
+    s.addShape(pptx.ShapeType.rect,{x:0,y:0.88,w:10,h:0.04,fill:{color:GOLD},line:{color:GOLD}});
+    s.addText('ALERTAS Y CONCLUSIONES',{x:0.4,y:0,w:9,h:0.9,fontSize:20,bold:true,color:WHITE,fontFace:'Arial Black',valign:'middle',charSpacing:2,margin:0});
+    const alertItems=[
+      {c:totM>0?RED:GREEN,ico:totM>0?'⚠️':'✅',
+       t:totM>0?`${totM} ítems en MAL ESTADO en checklist recientes`:'Sin ítems en Mal Estado — Flota en buen estado'},
+      {c:llEstados['Por cambiar']>0?RED:GREEN,ico:llEstados['Por cambiar']>0?'🔵':'✅',
+       t:llEstados['Por cambiar']>0?`${llEstados['Por cambiar']} llantas necesitan cambio urgente`:'Sin llantas por cambiar'},
+      {c:todosRep.filter(r=>(parseInt(r.stock)||0)===0).length>0?RED:GREEN,
+       ico:todosRep.filter(r=>(parseInt(r.stock)||0)===0).length>0?'📦':'✅',
+       t:todosRep.filter(r=>(parseInt(r.stock)||0)===0).length>0?
+         `${todosRep.filter(r=>(parseInt(r.stock)||0)===0).length} repuestos agotados en almacén`:'Stock de repuestos adecuado'},
+      {c:pctProm>=80?GREEN:pctProm<60?RED:GOLD,ico:pctProm>=80?'✅':'⚠️',
+       t:`Promedio de aprobados: ${pctProm}% — ${pctProm>=80?'Dentro del objetivo':'Requiere mejora'}`,},
+    ];
+    alertItems.forEach((a,i)=>{
+      const y=1.05+i*1.05;
+      s.addShape(pptx.ShapeType.rect,{x:0.3,y,w:9.4,h:0.85,fill:{color:CARD},line:{color:'2A3F6B',width:0.5},shadow:mk()});
+      s.addShape(pptx.ShapeType.rect,{x:0.3,y,w:0.06,h:0.85,fill:{color:a.c},line:{color:a.c}});
+      s.addText(a.ico,{x:0.5,y:y+0.12,w:0.7,h:0.6,fontSize:20,align:'center',margin:0});
+      s.addText(a.t,{x:1.3,y:y+0.18,w:8.2,h:0.5,fontSize:13,color:WHITE,fontFace:'Arial',margin:0});
+    });
+    // Footer conclusión
+    s.addShape(pptx.ShapeType.rect,{x:0.3,y:5.1,w:9.4,h:0.35,fill:{color:SURF},line:{color:SURF}});
+    s.addText(`Informe generado: ${hoy} | ${usuario.nombre} — ${usuario.cargo} | ECOSEM HUARAUCACA S.A.C.`,
+      {x:0.3,y:5.1,w:9.4,h:0.35,fontSize:8,color:MUTED,fontFace:'Arial',align:'center',valign:'middle',margin:0});
+
+    await pptx.writeFile({fileName:`ECOSEM_Informe_${new Date().toISOString().slice(0,10)}.pptx`});
+    toast('✅ Informe PPT descargado (8 slides)');
+  }catch(e){console.error(e);toast('❌ Error generando PPT: '+e.message)}
+}
+
+/* ════════════════════════════════════════════════════
+   UTILS
+════════════════════════════════════════════════════ */
+function setTxt(id,v){const e=document.getElementById(id);if(e)e.textContent=v}
+function abrirModal(id){document.getElementById(id).classList.add('on');document.body.style.overflow='hidden'}
+function cerrarModal(id){document.getElementById(id).classList.remove('on');document.body.style.overflow=''}
+// Close modal on backdrop click
+document.querySelectorAll('.modal-bg').forEach(bg=>{
+  bg.addEventListener('click',e=>{if(e.target===bg)cerrarModal(bg.id)});
+});
+let tTmr;
+function toast(msg){
+  const el=document.getElementById('toast');el.textContent=msg;el.classList.add('on');
+  clearTimeout(tTmr);tTmr=setTimeout(()=>el.classList.remove('on'),3500);
+}
+
+/* ════════════════════════════════════════════════════
+   INIT
+════════════════════════════════════════════════════ */
+document.addEventListener('DOMContentLoaded',()=>{
+  const c=getCfg();
+  if(c.apiKey){
+    document.getElementById('cfg-k').value=c.apiKey;
+    document.getElementById('cfg-p').value=c.projectId||'';
+    document.getElementById('cfg-a').value=c.adminPass||'';
+    initFB(c);
+  }
+});
+</script>
+</body>
+</html>
